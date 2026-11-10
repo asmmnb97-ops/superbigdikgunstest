@@ -1,0 +1,192 @@
+:root {
+  --bg: #f2f0ea;          /* тёплый пергамент — «старая бумага» */
+  --card: #ffffff;
+  --text: #2b2823;
+  --accent: #5b5f9e;
+  --accent-text: #ffffff;
+  --muted: #e3e0d6;
+  --ok: #2f7d4f;
+  --bad: #b3453f;
+  --warn: #a8721f;
+  --pattern: rgba(91, 95, 158, 0.10);
+}
+
+body.dark {
+  --bg: #0e1110;          /* почти чёрный с зелёным оттенком — «лес ночью» */
+  --card: #1a1d1b;
+  --text: #d8dcd5;
+  --accent: #4e8f8a;
+  --accent-text: #ffffff;
+  --muted: #252925;
+  --ok: #6fbf8f;
+  --bad: #e07a72;
+  --warn: #d9a75a;
+  --pattern: rgba(78, 143, 138, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  transition: background-color .25s, color .25s;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== НИЖНИЙ ДЕКОР: светлая тема — звёзды и мелкие грибы-точки ===== */
+body::before {
+  content: "";
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 200px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .9;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'><g fill='none' stroke='%235b5f9e' stroke-width='1.2' opacity='0.18'><path d='M0 160 Q 75 120 150 160 T 300 160 T 450 160 T 600 160'/><path d='M0 180 Q 75 140 150 180 T 300 180 T 450 180 T 600 180'/></g><g fill='%235b5f9e' opacity='0.25'><path d='M120 60 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z'/><path d='M320 40 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z'/><path d='M480 80 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z'/><circle cx='220' cy='90' r='2'/><circle cx='400' cy='70' r='2'/></g></svg>");
+  background-repeat: repeat-x;
+  background-position: bottom center;
+  background-size: 600px 200px;
+}
+
+/* тёмная тема: паутина + летучие мыши внизу */
+body.dark::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'><g fill='none' stroke='%234e8f8a' stroke-width='1.2' opacity='0.22'><path d='M0 150 Q 40 120 80 150 Q 120 180 160 150 Q 200 120 240 150 Q 280 180 320 150 Q 360 120 400 150 Q 440 180 480 150 Q 520 120 560 150 Q 600 180 640 150'/><path d='M40 130 Q 60 110 80 130 Q 60 150 40 130'/><path d='M120 130 Q 140 110 160 130 Q 140 150 120 130'/><path d='M220 130 Q 240 110 260 130 Q 240 150 220 130'/><path d='M320 130 Q 340 110 360 130 Q 340 150 320 130'/><path d='M420 130 Q 440 110 460 130 Q 440 150 420 130'/><path d='M520 130 Q 540 110 560 130 Q 540 150 520 130'/></g><g fill='%234e8f8a' opacity='0.3'><circle cx='140' cy='170' r='2'/><circle cx='260' cy='180' r='2'/><circle cx='420' cy='170' r='2'/><circle cx='540' cy='185' r='2'/></g></svg>");
+}
+
+/* ===== ВЕРХНИЙ ДЕКОР В ШАПКЕ ===== */
+header.hero {
+  background: var(--accent);
+  color: var(--accent-text);
+  padding: 44px 20px 36px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Слева: ЧЕРЕП (светлая тема) */
+header.hero::before {
+  content: "";
+  position: absolute;
+  left: 20px; bottom: -10px;
+  width: 140px; height: 140px;
+  pointer-events: none;
+  opacity: .22;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'><path d='M30 35 Q30 15 50 15 Q70 15 70 35 Q70 55 65 65 L60 75 L55 70 L50 78 L45 70 L40 75 L35 65 Q30 55 30 35 Z'/><circle cx='42' cy='40' r='5'/><circle cx='58' cy='40' r='5'/><path d='M47 52 L50 55 L53 52'/><path d='M45 60 L45 65'/><path d='M50 60 L50 65'/><path d='M55 60 L55 65'/></svg>");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Справа: ГРИБ (светлая тема) */
+header.hero::after {
+  content: "";
+  position: absolute;
+  right: 20px; bottom: -10px;
+  width: 140px; height: 140px;
+  pointer-events: none;
+  opacity: .22;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'><path d='M20 50 Q20 20 50 20 Q80 20 80 50 Q80 60 70 60 L30 60 Q20 60 20 50 Z'/><path d='M40 60 L40 85 Q40 90 50 90 Q60 90 60 85 L60 60'/><path d='M30 45 L35 45'/><path d='M50 40 L50 45'/><path d='M65 45 L70 45'/><circle cx='40' cy='60' r='1.5' fill='white' stroke='none'/><circle cx='55' cy='70' r='1.5' fill='white' stroke='none'/></svg>");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* --- ТЁМНАЯ ТЕМА: свеча слева --- */
+body.dark header.hero::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'><path d='M35 90 L35 50 Q35 45 50 45 Q65 45 65 50 L65 90 Z'/><path d='M35 60 L65 60'/><path d='M42 35 Q50 20 50 10 Q50 20 58 35 Q50 40 42 35 Z'/><path d='M45 30 Q50 22 50 18'/><path d='M50 45 L50 40'/></svg>");
+}
+
+/* --- ТЁМНАЯ ТЕМА: летучая мышь справа --- */
+body.dark header.hero::after {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'><path d='M50 40 Q40 30 20 35 Q30 45 30 55 Q20 50 10 55 Q20 65 35 65 Q45 65 50 75 Q55 65 65 65 Q80 65 90 55 Q80 50 70 55 Q70 45 80 35 Q60 30 50 40 Z'/><circle cx='45' cy='45' r='1.5' fill='white' stroke='none'/><circle cx='55' cy='45' r='1.5' fill='white' stroke='none'/></svg>");
+}
+
+/* Всё содержимое поверх декора */
+header.hero, header, main, .tabs, .theme-btn { position: relative; z-index: 1; }
+
+header.hero h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: .3px; }
+header.hero p { margin: 0; opacity: .92; }
+
+header { max-width: 900px; margin: 0 auto; padding: 20px; }
+header a { color: var(--accent); text-decoration: none; font-size: 15px; }
+header a:hover { text-decoration: underline; }
+
+main { max-width: 900px; margin: 0 auto; padding: 20px 20px 200px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+
+.card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 10px rgba(0,0,0,.05);
+  transition: transform .15s, box-shadow .15s;
+  position: relative;
+  z-index: 1;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+.icon { font-size: 28px; }
+
+.tabs { display: flex; gap: 8px; max-width: 900px; margin: 16px auto 0; padding: 0 20px; }
+.tabs button {
+  padding: 10px 16px; border: none; border-radius: 10px;
+  background: var(--muted); color: var(--text);
+  cursor: pointer; font-size: 15px;
+}
+.tabs button.active { background: var(--accent); color: var(--accent-text); }
+
+.question, .open-q {
+  background: var(--card);
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.04);
+  position: relative;
+  z-index: 1;
+}
+.question label { display: block; margin: 8px 0; cursor: pointer; }
+
+.theme-btn {
+  position: fixed; top: 16px; right: 16px; z-index: 20;
+  background: var(--card); color: var(--text);
+  border: 1px solid var(--muted);
+  border-radius: 50%; width: 44px; height: 44px;
+  font-size: 20px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.check-one, .show-answer {
+  margin-top: 12px; padding: 9px 16px;
+  border: none; border-radius: 8px;
+  background: var(--accent); color: var(--accent-text);
+  cursor: pointer; font-size: 14px;
+}
+.check-one:hover, .show-answer:hover { filter: brightness(1.08); }
+
+.feedback .ok { color: var(--ok); font-weight: 600; }
+.feedback .bad { color: var(--bad); font-weight: 600; }
+.feedback .warn { color: var(--warn); }
+.feedback .explain {
+  background: var(--muted); padding: 10px;
+  border-radius: 8px; margin-top: 8px;
+}
+
+.open-q textarea {
+  width: 100%; margin-top: 10px; padding: 10px;
+  border-radius: 8px; border: 1px solid var(--muted);
+  background: var(--bg); color: var(--text);
+  font-family: inherit; font-size: 15px; resize: vertical;
+}
+.open-q textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.model-answer {
+  margin-top: 10px; padding: 12px;
+  background: var(--muted); border-radius: 8px;
+}

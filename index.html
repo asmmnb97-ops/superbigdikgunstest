@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мой тренажёр</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <h1>Мой тренажёр</h1>
+    <p>Подготовка к коллоквиумам и экзаменам</p>
+  </header>
+
+  <main>
+    <h2>Дисциплины</h2>
+    <div id="subject-list" class="grid"></div>
+  </main>
+
+  <button class="theme-btn" id="theme-btn">🌙</button>
+
+  <script src="data.js"></script>
+  <script>
+    // Меню дисциплин
+    const list = document.getElementById("subject-list");
+    subjects.forEach(s => {
+      const a = document.createElement("a");
+      a.className = "card";
+      a.href = "subject.html?id=" + s.id;
+      a.innerHTML = `<span class="icon">${s.icon}</span><span>${s.name}</span>`;
+      list.appendChild(a);
+    });
+
+    // Переключатель темы
+    const btn = document.getElementById("theme-btn");
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") document.body.classList.add("dark");
+    btn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    btn.onclick = () => {
+      document.body.classList.toggle("dark");
+      const dark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", dark ? "dark" : "light");
+      btn.textContent = dark ? "☀️" : "🌙";
+    };
+  </script>
+</body>
+</html>

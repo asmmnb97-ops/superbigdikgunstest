@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Дисциплина</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <a href="index.html">← На главную</a>
+    <h1 id="title"></h1>
+  </header>
+
+  <div class="tabs">
+    <button id="tab-test" class="active">Тестовые задания</button>
+    <button id="tab-open">Открытые задания</button>
+  </div>
+
+  <div id="filters" style="display:flex; max-width:900px; margin:16px auto 0; padding:0 20px; gap:10px; flex-wrap:wrap;">
+    <select id="topic-filter" style="padding:10px 14px; border-radius:10px; border:1px solid var(--muted); background:var(--card); color:var(--text); font-size:15px; min-width:220px;">
+      <option value="">Все темы</option>
+    </select>
+    <input id="search-input" type="text" placeholder="Поиск по вопросам..."
+           style="flex:1; min-width:220px; padding:10px 14px; border-radius:10px; border:1px solid var(--muted); background:var(--card); color:var(--text); font-size:15px;">
+  </div>
+
+  <main id="content"></main>
+
+  <button class="theme-btn" id="theme-btn">🌙</button>
+
+  <script src="data.js"></script>
+  <script>
+    const id = new URLSearchParams(location.search).get("id");
+    const subject = subjects.find(s => s.id === id);
+    document.getElementById("title").textContent = subject ? subject.name : "Не найдено";
+    const data = questions[id] || { test: [], open: [] };
+
+    const content = document.getElementById("content");
+    const tabTest = document.getElementById("tab-test");
+    const tabOpen = document.getElementById("tab-open");
+    const topicFilter = document.getElementById("topic-filter");
+    const searchInput = document.getElementById("search-input");
+
+    let currentTab = "test";
+
+    function fillTopics() {
+      const source = currentTab === "test" ? data.test : data.open;
+      const topics = [...new Set(source.map(q => q.topic))];
+      topicFilter.innerHTML = `<option value="">Все темы</option>` +
+        topics.map(t => `<option value="${t}">${t}</option>`).join("");
+    }
+
+    function filteredItems() {
+      const source = currentTab === "test" ? data.test : data.open;
+      const topic = topicFilter.value;
+      const query = searchInput.value.toLowerCase().trim();
+      return source.filter(item => {
+        const matchesTopic = !topic || item.topic === topic;
+        const matchesQuery = !query || item.q.toLowerCase().includes(query);
+        return matchesTopic && matchesQuery;
+      });
+    }
+
+    // ----- Тестовые задания -----
+    function renderTest() {
+      currentTab = "test";
+      fillTopics();
+      const items = filteredItems();
+      if (!items.length) {
+        content.innerHTML = "<p>Ничего не найдено. Попробуйте изменить фильтр.</p>";
+        return;
+      }
+      content.innerHTML = items.map((item, i) => `
+        <div class="question" id="q${i}">
+          <p><span style="font-size:13px; opacity:.7;">${item.topic}</span></p>
+          <p><b>${i + 1}. ${item.q}</b></p>
+          ${item.options.map((opt, j) => `
+            <label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>
+          `).join("")}
+          <button class="check-one" data-i="${i}">Проверить</button>
+          <div class="feedback" id="fb${i}"></div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".check-one").forEach(btn => {
+        btn.onclick = () => {
+          const i = +btn.dataset.i;
+          const item = items[i];
+          const chosen = document.querySelector(`input[name="q${i}"]:checked`);
+          const fb = document.getElementById("fb" + i);
+          if (!chosen) {
+            fb.innerHTML = `<p class="warn">Выберите вариант ответа.</p>`;
+            return;
+          }
+          const ok = +chosen.value === item.correct;
+          fb.innerHTML = `
+            <p class="${ok ? "ok" : "bad"}">${ok ? "✅ Верно!" : "❌ Неверно. Правильный ответ: " + item.options[item.correct]}</p>
+            <p class="explain">💡 ${item.explain || ""}</p>
+          `;
+        };
+      });
+    }
+
+    // ----- Открытые задания -----
+    function renderOpen() {
+      currentTab = "open";
+      fillTopics();
+      const items = filteredItems();
+      if (!items.length) {
+        content.innerHTML = "<p>Ничего не найдено. Попробуйте изменить фильтр.</p>";
+        return;
+      }
+      content.innerHTML = items.map((item, i) => `
+        <div class="open-q">
+          <p><span style="font-size:13px; opacity:.7;">${item.topic}</span></p>
+          <p><b>${i + 1}. ${item.q}</b></p>
+          <textarea id="ta${i}" rows="4" placeholder="Напишите свой вариант ответа..."></textarea>
+          <button class="show-answer" data-i="${i}">Показать эталон</button>
+          <div class="model-answer" id="ma${i}" style="display:none">
+            <p><b>Эталон:</b> ${item.answer}</p>
+          </div>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".show-answer").forEach(btn => {
+        btn.onclick = () => {
+          const i = +btn.dataset.i;
+          const box = document.getElementById("ma" + i);
+          box.style.display = box.style.display === "none" ? "block" : "none";
+          btn.textContent = box.style.display === "none" ? "Показать эталон" : "Скрыть эталон";
+        };
+      });
+    }
+
+    topicFilter.onchange = () => currentTab === "test" ? renderTest() : renderOpen();
+    searchInput.oninput = () => currentTab === "test" ? renderTest() : renderOpen();
+
+    tabTest.onclick = () => {
+      tabTest.classList.add("active");
+      tabOpen.classList.remove("active");
+      renderTest();
+    };
+    tabOpen.onclick = () => {
+      tabOpen.classList.add("active");
+      tabTest.classList.remove("active");
+      renderOpen();
+    };
+
+    renderTest();
+
+    // Тема
+    const btn = document.getElementById("theme-btn");
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") document.body.classList.add("dark");
+    btn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    btn.onclick = () => {
+      document.body.classList.toggle("dark");
+      const dark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", dark ? "dark" : "light");
+      btn.textContent = dark ? "☀️" : "🌙";
+    };
+  </script>
+</body>
+</html>
