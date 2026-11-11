@@ -202,12 +202,8 @@
     renderTest();
 
     const btnTheme = document.getElementById("theme-btn");
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark");
-      btnTheme.innerHTML = "☀️";
-    } else {
-      btnTheme.innerHTML = "🌙";
-    }
+    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btnTheme.innerHTML = "☀️"; } 
+    else { btnTheme.innerHTML = "🌙"; }
     btnTheme.onclick = () => { 
       document.body.classList.toggle("dark"); 
       const isDark = document.body.classList.contains("dark");
@@ -219,7 +215,6 @@
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
     scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Кошка
     const cat = document.getElementById("logo-cat");
     const pupils = document.querySelectorAll(".pupil");
     const eyes = document.querySelectorAll(".cat-eye");
@@ -229,7 +224,7 @@
       const catX = rect.left + rect.width / 2;
       const catY = rect.top + rect.height / 2;
       const angle = Math.atan2(e.clientY - catY, e.clientX - catX);
-      pupils.forEach(p => p.style.transform = `translate(${Math.cos(angle) * 8}px, ${Math.sin(angle) * 8}px)`);
+      pupils.forEach(p => p.style.transform = `translate(${Math.cos(angle) * 6}px, ${Math.sin(angle) * 6}px)`);
     });
     setInterval(() => {
       eyes.forEach(eye => { eye.style.transition = "transform 0.1s"; eye.style.transform = "scaleY(0.1)"; });
