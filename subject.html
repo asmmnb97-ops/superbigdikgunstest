@@ -7,159 +7,200 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <a href="index.html">← На главную</a>
-    <h1 id="title"></h1>
-  </header>
+  <aside class="sidebar">
+    <div class="logo">Ψ</div>
+    <nav>
+      <a href="index.html">Дисциплины</a>
+      <a href="rating.html">Рейтинг</a>
+    </nav>
+  </aside>
 
-  <div class="tabs">
-    <button id="tab-test" class="active">Тестовые задания</button>
-    <button id="tab-open">Открытые задания</button>
+  <div class="main-content">
+    <header>
+      <a href="index.html" class="back-link">← Назад</a>
+      <h1 id="title"></h1>
+      <button class="theme-btn" id="theme-btn"></button>
+    </header>
+
+    <div class="controls">
+      <div class="tabs">
+        <button id="tab-test" class="active">Тесты</button>
+        <button id="tab-open">Открытые</button>
+      </div>
+      <div class="tools">
+        <select id="topic-filter"><option value="">Все темы</option></select>
+        <input id="search-input" type="text" placeholder="Поиск...">
+        <button id="btn-shuffle" title="Перемешать">⤨</button>
+        <button id="btn-random" title="Случайные 5">⚄</button>
+      </div>
+    </div>
+
+    <main id="content"></main>
   </div>
 
-  <div id="filters" style="display:flex; max-width:900px; margin:16px auto 0; padding:0 20px; gap:10px; flex-wrap:wrap;">
-    <select id="topic-filter" style="padding:10px 14px; border-radius:10px; border:1px solid var(--muted); background:var(--card); color:var(--text); font-size:15px; min-width:220px;">
-      <option value="">Все темы</option>
-    </select>
-    <input id="search-input" type="text" placeholder="Поиск по вопросам..."
-           style="flex:1; min-width:220px; padding:10px 14px; border-radius:10px; border:1px solid var(--muted); background:var(--card); color:var(--text); font-size:15px;">
-  </div>
-
-  <main id="content"></main>
-
-  <button class="theme-btn" id="theme-btn">🌙</button>
+  <button id="scroll-top">↑</button>
 
   <script src="data.js"></script>
   <script>
     const id = new URLSearchParams(location.search).get("id");
     const subject = subjects.find(s => s.id === id);
     document.getElementById("title").textContent = subject ? subject.name : "Не найдено";
+    // Если в data.js нет поля test или open — создаем пустые массивы
     const data = questions[id] || { test: [], open: [] };
+    if (!data.test) data.test = [];
+    if (!data.open) data.open = [];
 
     const content = document.getElementById("content");
     const tabTest = document.getElementById("tab-test");
     const tabOpen = document.getElementById("tab-open");
     const topicFilter = document.getElementById("topic-filter");
     const searchInput = document.getElementById("search-input");
+    const btnShuffle = document.getElementById("btn-shuffle");
+    const btnRandom = document.getElementById("btn-random");
 
     let currentTab = "test";
+    let isShuffled = false;
+    let limitRandom = 0;
+
+    function shuffle(arr) {
+      let a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
 
     function fillTopics() {
       const source = currentTab === "test" ? data.test : data.open;
-      const topics = [...new Set(source.map(q => q.topic))];
-      topicFilter.innerHTML = `<option value="">Все темы</option>` +
-        topics.map(t => `<option value="${t}">${t}</option>`).join("");
+      const topics = [...new Set(source.map(q => q.topic || "Без темы"))];
+      topicFilter.innerHTML = `<option value="">Все темы</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join("");
     }
 
-    function filteredItems() {
-      const source = currentTab === "test" ? data.test : data.open;
+    function getFilteredItems() {
+      let source = currentTab === "test" ? data.test : data.open;
       const topic = topicFilter.value;
       const query = searchInput.value.toLowerCase().trim();
-      return source.filter(item => {
-        const matchesTopic = !topic || item.topic === topic;
-        const matchesQuery = !query || item.q.toLowerCase().includes(query);
-        return matchesTopic && matchesQuery;
+      
+      let filtered = source.filter(item => {
+        const itemTopic = item.topic || "Без темы";
+        const matchTopic = !topic || itemTopic === topic;
+        const matchQuery = !query || item.q.toLowerCase().includes(query);
+        return matchTopic && matchQuery;
       });
+
+      if (isShuffled) filtered = shuffle(filtered);
+      if (limitRandom > 0) filtered = filtered.slice(0, limitRandom);
+      return filtered;
     }
 
-    // ----- Тестовые задания -----
+    function addScore(points) {
+      let scores = JSON.parse(localStorage.getItem("scores") || "{}");
+      scores[id] = (scores[id] || 0) + points;
+      localStorage.setItem("scores", JSON.stringify(scores));
+    }
+
     function renderTest() {
       currentTab = "test";
       fillTopics();
-      const items = filteredItems();
-      if (!items.length) {
-        content.innerHTML = "<p>Ничего не найдено. Попробуйте изменить фильтр.</p>";
-        return;
-      }
-      content.innerHTML = items.map((item, i) => `
-        <div class="question" id="q${i}">
-          <p><span style="font-size:13px; opacity:.7;">${item.topic}</span></p>
-          <p><b>${i + 1}. ${item.q}</b></p>
-          ${item.options.map((opt, j) => `
-            <label><input type="radio" name="q${i}" value="${j}"> ${opt}</label>
-          `).join("")}
-          <button class="check-one" data-i="${i}">Проверить</button>
-          <div class="feedback" id="fb${i}"></div>
+      const items = getFilteredItems();
+      if (!items.length) { content.innerHTML = "<p>Вопросов пока нет.</p>"; return; }
+
+      content.innerHTML = items.map((item, i) => {
+        // Создаем уникальный ID на лету, если его нет
+        const uid = item.id || "q_" + i + "_" + Math.random().toString(36).substr(2, 5);
+        return `
+        <div class="question">
+          <p><span class="topic-badge">${item.topic || "Без темы"}</span></p>
+          <p><b>${item.q}</b></p>
+          ${item.options.map((opt, j) => `<label><input type="radio" name="q_${uid}" value="${j}"> ${opt}</label>`).join("")}
+          <button class="check-one" data-uid="${uid}" data-idx="${i}">Проверить</button>
+          <div class="feedback" id="fb_${uid}"></div>
         </div>
-      `).join("");
+      `}).join("");
 
       document.querySelectorAll(".check-one").forEach(btn => {
         btn.onclick = () => {
-          const i = +btn.dataset.i;
-          const item = items[i];
-          const chosen = document.querySelector(`input[name="q${i}"]:checked`);
-          const fb = document.getElementById("fb" + i);
-          if (!chosen) {
-            fb.innerHTML = `<p class="warn">Выберите вариант ответа.</p>`;
-            return;
-          }
+          const uid = btn.dataset.uid;
+          const idx = +btn.dataset.idx;
+          const item = items[idx];
+          const chosen = document.querySelector(`input[name="q_${uid}"]:checked`);
+          const fb = document.getElementById("fb_" + uid);
+          if (!chosen) { fb.innerHTML = `<p class="warn" style="color:var(--bad)">Выберите ответ.</p>`; return; }
+          
           const ok = +chosen.value === item.correct;
+          if (ok) addScore(1);
+          
           fb.innerHTML = `
-            <p class="${ok ? "ok" : "bad"}">${ok ? "✅ Верно!" : "❌ Неверно. Правильный ответ: " + item.options[item.correct]}</p>
-            <p class="explain">💡 ${item.explain || ""}</p>
+            <p class="${ok ? "ok" : "bad"}">${ok ? "Верно (+1 балл)" : "Неверно"}</p>
+            <p class="explain">${item.explain || ""}</p>
           `;
         };
       });
     }
 
-    // ----- Открытые задания -----
     function renderOpen() {
       currentTab = "open";
       fillTopics();
-      const items = filteredItems();
-      if (!items.length) {
-        content.innerHTML = "<p>Ничего не найдено. Попробуйте изменить фильтр.</p>";
-        return;
-      }
-      content.innerHTML = items.map((item, i) => `
+      const items = getFilteredItems();
+      if (!items.length) { content.innerHTML = "<p>Вопросов пока нет.</p>"; return; }
+
+      content.innerHTML = items.map((item, i) => {
+        const uid = item.id || "o_" + i + "_" + Math.random().toString(36).substr(2, 5);
+        return `
         <div class="open-q">
-          <p><span style="font-size:13px; opacity:.7;">${item.topic}</span></p>
-          <p><b>${i + 1}. ${item.q}</b></p>
-          <textarea id="ta${i}" rows="4" placeholder="Напишите свой вариант ответа..."></textarea>
-          <button class="show-answer" data-i="${i}">Показать эталон</button>
-          <div class="model-answer" id="ma${i}" style="display:none">
-            <p><b>Эталон:</b> ${item.answer}</p>
+          <p><span class="topic-badge">${item.topic || "Без темы"}</span></p>
+          <p><b>${item.q}</b></p>
+          <textarea rows="4" placeholder="Напишите свой вариант..."></textarea>
+          <button class="show-answer" data-uid="${uid}">Показать примерный ответ</button>
+          <div class="model-answer" id="ma_${uid}" style="display:none">
+            <p><b>Примерный ответ:</b> ${item.answer || "Ответ не добавлен"}</p>
+            <div class="grade-box">
+              <span>Оцените свой ответ (1-5):</span>
+              <div class="grade-buttons">
+                ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-uid="${uid}" data-val="${n}">${n}</button>`).join("")}
+              </div>
+            </div>
           </div>
         </div>
-      `).join("");
+      `}).join("");
 
       document.querySelectorAll(".show-answer").forEach(btn => {
         btn.onclick = () => {
-          const i = +btn.dataset.i;
-          const box = document.getElementById("ma" + i);
+          const uid = btn.dataset.uid;
+          const box = document.getElementById("ma_" + uid);
           box.style.display = box.style.display === "none" ? "block" : "none";
-          btn.textContent = box.style.display === "none" ? "Показать эталон" : "Скрыть эталон";
+          btn.textContent = box.style.display === "none" ? "Показать примерный ответ" : "Скрыть ответ";
+        };
+      });
+
+      document.querySelectorAll(".grade-btn").forEach(btn => {
+        btn.onclick = () => {
+          const val = +btn.dataset.val;
+          addScore(val); 
+          const parent = btn.parentElement;
+          parent.innerHTML = `<span style="color:var(--ok); font-weight:bold;">Оценено на ${val} баллов</span>`;
         };
       });
     }
 
     topicFilter.onchange = () => currentTab === "test" ? renderTest() : renderOpen();
     searchInput.oninput = () => currentTab === "test" ? renderTest() : renderOpen();
+    btnShuffle.onclick = () => { isShuffled = !isShuffled; btnShuffle.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
+    btnRandom.onclick = () => { limitRandom = limitRandom > 0 ? 0 : 5; btnRandom.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
 
-    tabTest.onclick = () => {
-      tabTest.classList.add("active");
-      tabOpen.classList.remove("active");
-      renderTest();
-    };
-    tabOpen.onclick = () => {
-      tabOpen.classList.add("active");
-      tabTest.classList.remove("active");
-      renderOpen();
-    };
+    tabTest.onclick = () => { tabTest.classList.add("active"); tabOpen.classList.remove("active"); renderTest(); };
+    tabOpen.onclick = () => { tabOpen.classList.add("active"); tabTest.classList.remove("active"); renderOpen(); };
 
     renderTest();
 
-    // Тема
-    const btn = document.getElementById("theme-btn");
-    const saved = localStorage.getItem("theme");
-    if (saved === "dark") document.body.classList.add("dark");
-    btn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
-    btn.onclick = () => {
-      document.body.classList.toggle("dark");
-      const dark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", dark ? "dark" : "light");
-      btn.textContent = dark ? "☀️" : "🌙";
-    };
+    const btnTheme = document.getElementById("theme-btn");
+    if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+    btnTheme.onclick = () => { document.body.classList.toggle("dark"); localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light"); };
+
+    const scrollBtn = document.getElementById("scroll-top");
+    window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
+    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   </script>
 </body>
 </html>

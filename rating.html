@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мой рейтинг</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">Ψ</div>
+    <nav>
+      <a href="index.html">Дисциплины</a>
+      <a href="rating.html" class="active">Рейтинг</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header>
+      <h1>Ваш прогресс</h1>
+      <button class="theme-btn" id="theme-btn"></button>
+    </header>
+    <main id="rating-content"></main>
+  </div>
+  <button id="scroll-top">↑</button>
+
+  <script src="data.js"></script>
+  <script>
+    const content = document.getElementById("rating-content");
+    const scores = JSON.parse(localStorage.getItem("scores") || "{}");
+    
+    if (Object.keys(scores).length === 0) {
+      content.innerHTML = "<p>Вы пока не набрали баллов. Перейдите к дисциплинам и начните решать!</p>";
+    } else {
+      let html = "<div class='rating-list'>";
+      for (const [subId, score] of Object.entries(scores)) {
+        const subName = subjects.find(s => s.id === subId)?.name || subId;
+        html += `<div class="rating-item"><span>${subName}</span><b>${score} баллов</b></div>`;
+      }
+      html += "</div>";
+      content.innerHTML = html;
+    }
+
+    const btn = document.getElementById("theme-btn");
+    if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+    btn.onclick = () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+    };
+
+    const scrollBtn = document.getElementById("scroll-top");
+    window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
+    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  </script>
+</body>
+</html>
