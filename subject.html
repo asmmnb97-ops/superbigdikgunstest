@@ -9,11 +9,15 @@
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <svg class="flask-svg" viewBox="0 0 100 100">
-        <path d="M35 20 L35 45 L15 85 L85 85 L65 45 L65 20 Z" fill="none" stroke="var(--text)" stroke-width="3" stroke-linejoin="round"/>
-        <rect x="30" y="10" width="40" height="10" rx="2" fill="none" stroke="var(--text)" stroke-width="3"/>
-        <path d="M24 68 L76 68 L82 83 L18 83 Z" class="flask-liquid"/>
-        <circle cx="40" cy="72" r="3" class="flask-bubble"/>
+      <svg class="tree-svg" viewBox="0 0 100 100">
+        <path d="M50 90 L50 50" stroke="var(--text)" stroke-width="6" stroke-linecap="round" class="tree-trunk"/>
+        <path d="M50 70 L30 50" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M50 65 L70 45" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="50" cy="35" r="25" class="tree-leaves"/>
+        <circle cx="30" cy="50" r="15" class="tree-leaves"/>
+        <circle cx="70" cy="45" r="18" class="tree-leaves"/>
+        <circle cx="35" cy="30" r="3" class="tree-spore"/>
+        <circle cx="65" cy="25" r="2" class="tree-spore"/>
       </svg>
       <div class="logo-title">Forest<span>Test</span></div>
       <svg class="candle-svg" viewBox="0 0 100 100">
@@ -97,7 +101,6 @@
       
       let filtered = source.filter(item => {
         const itemTopic = item.topic ? item.topic.trim() : "Разное";
-        // Сравниваем темы без учета регистра и пробелов
         const matchTopic = !topic || itemTopic.toLowerCase() === topic.toLowerCase();
         const matchQuery = !query || (item.q && item.q.toLowerCase().includes(query));
         return matchTopic && matchQuery;
@@ -108,10 +111,27 @@
       return filtered;
     }
 
-    function addScore(points) {
+    // Функция для управления баллами (с возможностью перезаписи)
+    function updateScore(points, questionId) {
       let scores = JSON.parse(localStorage.getItem("scores") || "{}");
-      scores[id] = (scores[id] || 0) + points;
+      let history = JSON.parse(localStorage.getItem("score_history") || "{}"); // Храним, сколько дали за конкретный вопрос
+      
+      if (!scores[id]) scores[id] = 0;
+      
+      // Если за этот вопрос уже ставили баллы, вычитаем их
+      if (history[questionId]) {
+        scores[id] -= history[questionId];
+      }
+      
+      // Добавляем новые
+      scores[id] += points;
+      history[questionId] = points; // Запоминаем новый балл
+
+      // Защита от отрицательных значений (если что-то пошло не так)
+      if (scores[id] < 0) scores[id] = 0;
+
       localStorage.setItem("scores", JSON.stringify(scores));
+      localStorage.setItem("score_history", JSON.stringify(history));
     }
 
     function renderTest() {
@@ -142,7 +162,7 @@
           if (!chosen) { fb.innerHTML = `<p class="bad">Выберите ответ.</p>`; return; }
           
           const ok = +chosen.value === item.correct;
-          if (ok) addScore(1); 
+          if (ok) updateScore(1, uid); // Даем 1 балл за тест
           
           fb.innerHTML = `
             <p class="${ok ? "ok" : "bad"}">${ok ? "Верно (+1 балл)" : "Неверно"}</p>
@@ -170,9 +190,10 @@
             <p><b>Примерный ответ:</b> ${item.answer || "Ответ не добавлен"}</p>
             <div class="grade-box">
               <span>Оцените свой ответ (1-5):</span>
-              <div class="grade-buttons">
-                ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-val="${n}">${n}</button>`).join("")}
+              <div class="grade-buttons" id="grades_${uid}">
+                ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-uid="${uid}" data-val="${n}">${n}</button>`).join("")}
               </div>
+              <span class="grade-status" id="status_${uid}"></span>
             </div>
           </div>
         </div>
@@ -187,12 +208,24 @@
         };
       });
 
+      // ЛОГИКА ОЦЕНКИ (Многоразовая)
       document.querySelectorAll(".grade-btn").forEach(btn => {
         btn.onclick = () => {
+          const uid = btn.dataset.uid;
           const val = +btn.dataset.val;
-          addScore(val); 
-          const parent = btn.parentElement;
-          parent.innerHTML = `<span style="color:var(--ok); font-weight:bold;">Оценено на ${val} баллов</span>`;
+          
+          // Обновляем баллы в памяти
+          updateScore(val, uid); 
+          
+          // Визуал: убираем выделение со всех кнопок этой группы
+          const parent = document.getElementById("grades_" + uid);
+          parent.querySelectorAll(".grade-btn").forEach(b => b.classList.remove("active"));
+          // Выделяем нажатую
+          btn.classList.add("active");
+          
+          // Показываем статус
+          const status = document.getElementById("status_" + uid);
+          status.textContent = `Ваша оценка: ${val}`;
         };
       });
     }
