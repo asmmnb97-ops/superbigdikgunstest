@@ -8,14 +8,19 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="logo-cat" id="logo-cat">
-      <svg viewBox="0 0 100 100" class="cat-svg">
-        <path d="M20 50 L25 20 L45 35 L55 35 L75 20 L80 50 Q90 80 50 85 Q10 80 20 50 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-        <circle cx="40" cy="55" r="5" fill="none" stroke="currentColor" stroke-width="2" class="cat-eye"/>
-        <circle cx="60" cy="55" r="5" fill="none" stroke="currentColor" stroke-width="2" class="cat-eye"/>
-        <circle cx="40" cy="55" r="2" fill="currentColor" class="pupil"/>
-        <circle cx="60" cy="55" r="2" fill="currentColor" class="pupil"/>
-        <path d="M50 65 L45 70 M50 65 L55 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <div class="logo-box">
+      <svg class="flask-svg" viewBox="0 0 100 100">
+        <path d="M35 20 L35 45 L15 85 L85 85 L65 45 L65 20 Z" fill="none" stroke="var(--text)" stroke-width="4" stroke-linejoin="round"/>
+        <rect x="30" y="10" width="40" height="10" rx="2" fill="none" stroke="var(--text)" stroke-width="4"/>
+        <path d="M22 70 L78 70 L85 85 L15 85 Z" class="flask-liquid"/>
+        <circle cx="40" cy="75" r="3" class="flask-bubble"/>
+        <circle cx="60" cy="80" r="2" class="flask-bubble"/>
+      </svg>
+      <div class="logo-title">Forest<span>Test</span></div>
+      <svg class="candle-svg" viewBox="0 0 100 100">
+        <rect x="30" y="40" width="40" height="50" rx="5" fill="none" stroke="var(--text)" stroke-width="4"/>
+        <path d="M50 40 L50 20" fill="none" stroke="var(--text)" stroke-width="4"/>
+        <path d="M50 35 Q40 25 50 10 Q60 25 50 35 Z" fill="#e07a72" class="candle-flame"/>
       </svg>
     </div>
     <nav>
@@ -28,7 +33,7 @@
     <header>
       <a href="index.html" class="back-link">← Назад</a>
       <h1 id="title"></h1>
-      <button class="theme-btn" id="theme-btn"></button>
+      <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
 
     <div class="controls">
@@ -40,7 +45,7 @@
         <select id="topic-filter"><option value="">Все темы</option></select>
         <input id="search-input" type="text" placeholder="Поиск...">
         <button id="btn-shuffle" title="Перемешать">⤨</button>
-        <button id="btn-random" title="Случайные 5">⚄</button>
+        <button id="btn-random" title="Случайные 5 вопросов">🎲 Билет</button>
       </div>
     </div>
 
@@ -55,6 +60,7 @@
     const subject = subjects.find(s => s.id === id);
     document.getElementById("title").textContent = subject ? subject.name : "Не найдено";
     
+    // Защита от отсутствия данных
     const rawData = questions[id] || {};
     const data = { test: rawData.test || [], open: rawData.open || [] };
 
@@ -81,7 +87,9 @@
 
     function fillTopics() {
       const source = currentTab === "test" ? data.test : data.open;
-      const topics = [...new Set(source.map(q => q.topic ? q.topic.trim() : "Разное"))];
+      // Убираем пустые темы и дубликаты
+      let topics = [...new Set(source.map(q => q.topic ? q.topic.trim() : "Разное"))];
+      topics = topics.filter(t => t !== "");
       topicFilter.innerHTML = `<option value="">Все темы</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join("");
     }
 
@@ -92,7 +100,8 @@
       
       let filtered = source.filter(item => {
         const itemTopic = item.topic ? item.topic.trim() : "Разное";
-        const matchTopic = !topic || itemTopic === topic;
+        // Сравниваем темы (игнорируя регистр)
+        const matchTopic = !topic || itemTopic.toLowerCase() === topic.toLowerCase();
         const matchQuery = !query || (item.q && item.q.toLowerCase().includes(query));
         return matchTopic && matchQuery;
       });
@@ -191,6 +200,7 @@
       });
     }
 
+    // Слушатели для фильтра и билетов
     topicFilter.onchange = () => currentTab === "test" ? renderTest() : renderOpen();
     searchInput.oninput = () => currentTab === "test" ? renderTest() : renderOpen();
     btnShuffle.onclick = () => { isShuffled = !isShuffled; btnShuffle.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
@@ -201,35 +211,20 @@
 
     renderTest();
 
+    // Кнопка темы (починена)
     const btnTheme = document.getElementById("theme-btn");
-    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btnTheme.innerHTML = "☀️"; } 
-    else { btnTheme.innerHTML = "🌙"; }
+    const isDark = localStorage.getItem("theme") === "dark";
+    if (isDark) { document.body.classList.add("dark"); btnTheme.innerHTML = "☀️"; }
     btnTheme.onclick = () => { 
       document.body.classList.toggle("dark"); 
-      const isDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light"); 
-      btnTheme.innerHTML = isDark ? "☀️" : "🌙";
+      const nowDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", nowDark ? "dark" : "light"); 
+      btnTheme.innerHTML = nowDark ? "☀️" : "🌙";
     };
 
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
     scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    const cat = document.getElementById("logo-cat");
-    const pupils = document.querySelectorAll(".pupil");
-    const eyes = document.querySelectorAll(".cat-eye");
-    document.addEventListener("mousemove", (e) => {
-      if(!cat) return;
-      const rect = cat.getBoundingClientRect();
-      const catX = rect.left + rect.width / 2;
-      const catY = rect.top + rect.height / 2;
-      const angle = Math.atan2(e.clientY - catY, e.clientX - catX);
-      pupils.forEach(p => p.style.transform = `translate(${Math.cos(angle) * 6}px, ${Math.sin(angle) * 6}px)`);
-    });
-    setInterval(() => {
-      eyes.forEach(eye => { eye.style.transition = "transform 0.1s"; eye.style.transform = "scaleY(0.1)"; });
-      setTimeout(() => { eyes.forEach(eye => eye.style.transform = "scaleY(1)"); }, 150);
-    }, 4000);
   </script>
 </body>
 </html>

@@ -3,22 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Тренажёр</title>
+  <title>Forest Test</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <aside class="sidebar">
-    <!-- Кошка -->
-    <div class="logo-cat" id="logo-cat">
-      <svg viewBox="0 0 100 100" class="cat-svg">
-        <path d="M20 50 L25 20 L45 35 L55 35 L75 20 L80 50 Q90 80 50 85 Q10 80 20 50 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-        <circle cx="40" cy="55" r="5" fill="none" stroke="currentColor" stroke-width="2" class="cat-eye"/>
-        <circle cx="60" cy="55" r="5" fill="none" stroke="currentColor" stroke-width="2" class="cat-eye"/>
-        <circle cx="40" cy="55" r="2" fill="currentColor" class="pupil"/>
-        <circle cx="60" cy="55" r="2" fill="currentColor" class="pupil"/>
-        <path d="M50 65 L45 70 M50 65 L55 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <!-- Логотип -->
+    <div class="logo-box">
+      <svg class="flask-svg" viewBox="0 0 100 100">
+        <path d="M35 20 L35 45 L15 85 L85 85 L65 45 L65 20 Z" fill="none" stroke="var(--text)" stroke-width="4" stroke-linejoin="round"/>
+        <rect x="30" y="10" width="40" height="10" rx="2" fill="none" stroke="var(--text)" stroke-width="4"/>
+        <!-- Жидкость -->
+        <path d="M22 70 L78 70 L85 85 L15 85 Z" class="flask-liquid"/>
+        <circle cx="40" cy="75" r="3" class="flask-bubble"/>
+        <circle cx="60" cy="80" r="2" class="flask-bubble"/>
+        <circle cx="50" cy="72" r="2" class="flask-bubble"/>
+      </svg>
+      <div class="logo-title">Forest<span>Test</span></div>
+      
+      <!-- Свеча (появится в темной теме) -->
+      <svg class="candle-svg" viewBox="0 0 100 100">
+        <rect x="30" y="40" width="40" height="50" rx="5" fill="none" stroke="var(--text)" stroke-width="4"/>
+        <path d="M50 40 L50 20" fill="none" stroke="var(--text)" stroke-width="4"/>
+        <!-- Огонь -->
+        <path d="M50 35 Q40 25 50 10 Q60 25 50 35 Z" fill="#e07a72" class="candle-flame"/>
       </svg>
     </div>
+    
     <nav>
       <a href="index.html" class="active">Дисциплины</a>
       <a href="rating.html">Рейтинг</a>
@@ -30,7 +41,7 @@
   <div class="main-content">
     <header>
       <h1>Выберите дисциплину</h1>
-      <button class="theme-btn" id="theme-btn"></button>
+      <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
     <main>
       <div id="subject-list" class="grid"></div>
@@ -50,45 +61,26 @@
       let iconSVG = "";
       if (s.icon === "eye") iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
       else if (s.icon === "book") iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-      else if (s.icon === "skull") iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"></path><circle cx="9" cy="12" r="1"></circle><circle cx="15" cy="12" r="1"></circle></svg>`;
       else iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"></path></svg>`;
       
       a.innerHTML = `<span class="icon">${iconSVG}</span><span>${s.name}</span>`;
       list.appendChild(a);
     });
 
+    // Кнопка темы (починена)
     const btn = document.getElementById("theme-btn");
-    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; } 
-    else { btn.innerHTML = "🌙"; }
+    const isDark = localStorage.getItem("theme") === "dark";
+    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
-      const isDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      btn.innerHTML = isDark ? "☀️" : "🌙";
+      const nowDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", nowDark ? "dark" : "light");
+      btn.innerHTML = nowDark ? "☀️" : "🌙";
     };
 
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
     scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Кошка следит и моргает
-    const cat = document.getElementById("logo-cat");
-    const pupils = document.querySelectorAll(".pupil");
-    const eyes = document.querySelectorAll(".cat-eye");
-
-    document.addEventListener("mousemove", (e) => {
-      if(!cat) return;
-      const rect = cat.getBoundingClientRect();
-      const catX = rect.left + rect.width / 2;
-      const catY = rect.top + rect.height / 2;
-      const angle = Math.atan2(e.clientY - catY, e.clientX - catX);
-      pupils.forEach(p => p.style.transform = `translate(${Math.cos(angle) * 6}px, ${Math.sin(angle) * 6}px)`);
-    });
-
-    setInterval(() => {
-      eyes.forEach(eye => { eye.style.transition = "transform 0.1s"; eye.style.transform = "scaleY(0.1)"; });
-      setTimeout(() => { eyes.forEach(eye => eye.style.transform = "scaleY(1)"); }, 150);
-    }, 4000);
   </script>
 </body>
 </html>
