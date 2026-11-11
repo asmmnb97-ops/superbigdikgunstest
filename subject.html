@@ -8,7 +8,12 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="logo">Ψ</div>
+    <div class="logo-eye" id="logo-eye">
+      <svg viewBox="0 0 100 100" class="eye-svg">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4"/>
+        <circle cx="50" cy="50" r="20" fill="currentColor" class="pupil" id="pupil"/>
+      </svg>
+    </div>
     <nav>
       <a href="index.html">Дисциплины</a>
       <a href="rating.html">Рейтинг</a>
@@ -45,10 +50,13 @@
     const id = new URLSearchParams(location.search).get("id");
     const subject = subjects.find(s => s.id === id);
     document.getElementById("title").textContent = subject ? subject.name : "Не найдено";
-    // Если в data.js нет поля test или open — создаем пустые массивы
-    const data = questions[id] || { test: [], open: [] };
-    if (!data.test) data.test = [];
-    if (!data.open) data.open = [];
+    
+    // Защита от пустых массивов
+    const rawData = questions[id] || {};
+    const data = {
+      test: rawData.test || [],
+      open: rawData.open || []
+    };
 
     const content = document.getElementById("content");
     const tabTest = document.getElementById("tab-test");
@@ -62,6 +70,7 @@
     let isShuffled = false;
     let limitRandom = 0;
 
+    // Функция перемешивания
     function shuffle(arr) {
       let a = [...arr];
       for (let i = a.length - 1; i > 0; i--) {
@@ -71,21 +80,23 @@
       return a;
     }
 
+    // ПОЧИНКА ФИЛЬТРА: собираем темы, даже если их нет в объекте
     function fillTopics() {
       const source = currentTab === "test" ? data.test : data.open;
-      const topics = [...new Set(source.map(q => q.topic || "Без темы"))];
+      // Берем тему, если нет — пишем "Разное"
+      const topics = [...new Set(source.map(q => q.topic ? q.topic.trim() : "Разное"))];
       topicFilter.innerHTML = `<option value="">Все темы</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join("");
     }
 
     function getFilteredItems() {
-      let source = currentTab === "test" ? data.test : data.open;
+      const source = currentTab === "test" ? data.test : data.open;
       const topic = topicFilter.value;
       const query = searchInput.value.toLowerCase().trim();
       
       let filtered = source.filter(item => {
-        const itemTopic = item.topic || "Без темы";
+        const itemTopic = item.topic ? item.topic.trim() : "Разное";
         const matchTopic = !topic || itemTopic === topic;
-        const matchQuery = !query || item.q.toLowerCase().includes(query);
+        const matchQuery = !query || (item.q && item.q.toLowerCase().includes(query));
         return matchTopic && matchQuery;
       });
 
@@ -100,20 +111,24 @@
       localStorage.setItem("scores", JSON.stringify(scores));
     }
 
+    // РЕНДЕР ТЕСТОВ
     function renderTest() {
       currentTab = "test";
       fillTopics();
       const items = getFilteredItems();
-      if (!items.length) { content.innerHTML = "<p>Вопросов пока нет.</p>"; return; }
+      
+      if (!items.length) { 
+        content.innerHTML = "<p style='opacity:0.6'>В этой категории пока нет вопросов.</p>"; 
+        return; 
+      }
 
       content.innerHTML = items.map((item, i) => {
-        // Создаем уникальный ID на лету, если его нет
         const uid = item.id || "q_" + i + "_" + Math.random().toString(36).substr(2, 5);
         return `
         <div class="question">
-          <p><span class="topic-badge">${item.topic || "Без темы"}</span></p>
-          <p><b>${item.q}</b></p>
-          ${item.options.map((opt, j) => `<label><input type="radio" name="q_${uid}" value="${j}"> ${opt}</label>`).join("")}
+          <p><span class="topic-badge">${item.topic || "Разное"}</span></p>
+          <p><b>${item.q || "Вопрос без текста"}</b></p>
+          ${item.options ? item.options.map((opt, j) => `<label><input type="radio" name="q_${uid}" value="${j}"> ${opt}</label>`).join("") : ""}
           <button class="check-one" data-uid="${uid}" data-idx="${i}">Проверить</button>
           <div class="feedback" id="fb_${uid}"></div>
         </div>
@@ -126,10 +141,10 @@
           const item = items[idx];
           const chosen = document.querySelector(`input[name="q_${uid}"]:checked`);
           const fb = document.getElementById("fb_" + uid);
-          if (!chosen) { fb.innerHTML = `<p class="warn" style="color:var(--bad)">Выберите ответ.</p>`; return; }
+          if (!chosen) { fb.innerHTML = `<p class="bad">Выберите ответ.</p>`; return; }
           
           const ok = +chosen.value === item.correct;
-          if (ok) addScore(1);
+          if (ok) addScore(1); // Начисляем 1 балл
           
           fb.innerHTML = `
             <p class="${ok ? "ok" : "bad"}">${ok ? "Верно (+1 балл)" : "Неверно"}</p>
@@ -139,18 +154,23 @@
       });
     }
 
+    // РЕНДЕР ОТКРЫТЫХ
     function renderOpen() {
       currentTab = "open";
       fillTopics();
       const items = getFilteredItems();
-      if (!items.length) { content.innerHTML = "<p>Вопросов пока нет.</p>"; return; }
+      
+      if (!items.length) { 
+        content.innerHTML = "<p style='opacity:0.6'>В этой категории пока нет вопросов.</p>"; 
+        return; 
+      }
 
       content.innerHTML = items.map((item, i) => {
         const uid = item.id || "o_" + i + "_" + Math.random().toString(36).substr(2, 5);
         return `
         <div class="open-q">
-          <p><span class="topic-badge">${item.topic || "Без темы"}</span></p>
-          <p><b>${item.q}</b></p>
+          <p><span class="topic-badge">${item.topic || "Разное"}</span></p>
+          <p><b>${item.q || "Вопрос без текста"}</b></p>
           <textarea rows="4" placeholder="Напишите свой вариант..."></textarea>
           <button class="show-answer" data-uid="${uid}">Показать примерный ответ</button>
           <div class="model-answer" id="ma_${uid}" style="display:none">
@@ -158,7 +178,7 @@
             <div class="grade-box">
               <span>Оцените свой ответ (1-5):</span>
               <div class="grade-buttons">
-                ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-uid="${uid}" data-val="${n}">${n}</button>`).join("")}
+                ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-val="${n}">${n}</button>`).join("")}
               </div>
             </div>
           </div>
@@ -184,6 +204,7 @@
       });
     }
 
+    // Слушатели
     topicFilter.onchange = () => currentTab === "test" ? renderTest() : renderOpen();
     searchInput.oninput = () => currentTab === "test" ? renderTest() : renderOpen();
     btnShuffle.onclick = () => { isShuffled = !isShuffled; btnShuffle.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
@@ -194,6 +215,7 @@
 
     renderTest();
 
+    // Тема и Скролл
     const btnTheme = document.getElementById("theme-btn");
     if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
     btnTheme.onclick = () => { document.body.classList.toggle("dark"); localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light"); };
@@ -201,6 +223,26 @@
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
     scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Глаз
+    const eye = document.getElementById("logo-eye");
+    const pupil = document.getElementById("pupil");
+    document.addEventListener("mousemove", (e) => {
+      if(!eye) return;
+      const rect = eye.getBoundingClientRect();
+      const eyeX = rect.left + rect.width / 2;
+      const eyeY = rect.top + rect.height / 2;
+      const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+      const moveX = Math.cos(angle) * 15;
+      const moveY = Math.sin(angle) * 15;
+      pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    });
+    setInterval(() => {
+      if (!eye) return;
+      eye.style.transition = "transform 0.1s";
+      eye.style.transform = "scaleY(0.1)";
+      setTimeout(() => { eye.style.transform = "scaleY(1)"; }, 150);
+    }, 4000);
   </script>
 </body>
 </html>

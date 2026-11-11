@@ -8,7 +8,13 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="logo">Ψ</div>
+    <!-- Глаз, следящий за мышкой -->
+    <div class="logo-eye" id="logo-eye">
+      <svg viewBox="0 0 100 100" class="eye-svg">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="4"/>
+        <circle cx="50" cy="50" r="20" fill="currentColor" class="pupil" id="pupil"/>
+      </svg>
+    </div>
     <nav>
       <a href="index.html" class="active">Дисциплины</a>
       <a href="rating.html">Рейтинг</a>
@@ -31,6 +37,7 @@
 
   <script src="data.js"></script>
   <script>
+    // Рендер дисциплин с гоблин-иконками
     const list = document.getElementById("subject-list");
     subjects.forEach(s => {
       const a = document.createElement("a");
@@ -38,15 +45,16 @@
       a.href = "subject.html?id=" + s.id;
       
       let iconSVG = "";
-      if (s.icon === "eye") iconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
-      else if (s.icon === "book") iconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-      else if (s.icon === "skull") iconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"></path><path d="M9 12c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"></path><path d="M15 12c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"></path></svg>`;
-      else iconSVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"></path></svg>`;
+      if (s.icon === "eye") iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+      else if (s.icon === "book") iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+      else if (s.icon === "skull") iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"></path><path d="M9 12c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"></path><path d="M15 12c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"></path></svg>`;
+      else iconSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"></path></svg>`;
       
       a.innerHTML = `<span class="icon">${iconSVG}</span><span>${s.name}</span>`;
       list.appendChild(a);
     });
 
+    // Тема
     const btn = document.getElementById("theme-btn");
     if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
     btn.onclick = () => {
@@ -54,9 +62,35 @@
       localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
     };
 
+    // Кнопка наверх
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
     scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Глаз следит за мышкой и моргает
+    const eye = document.getElementById("logo-eye");
+    const pupil = document.getElementById("pupil");
+    
+    document.addEventListener("mousemove", (e) => {
+      const rect = eye.getBoundingClientRect();
+      const eyeX = rect.left + rect.width / 2;
+      const eyeY = rect.top + rect.height / 2;
+      const angle = Math.atan2(e.clientY - eyeY, e.clientX - eyeX);
+      // Ограничиваем движение зрачка (радиус 15)
+      const moveX = Math.cos(angle) * 15;
+      const moveY = Math.sin(angle) * 15;
+      pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    });
+
+    // Автоматическое моргание
+    setInterval(() => {
+      if (!eye) return;
+      eye.style.transition = "transform 0.1s";
+      eye.style.transform = "scaleY(0.1)";
+      setTimeout(() => {
+        eye.style.transform = "scaleY(1)";
+      }, 150);
+    }, 4000);
   </script>
 </body>
 </html>
