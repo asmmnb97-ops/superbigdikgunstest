@@ -10,17 +10,16 @@
   <aside class="sidebar">
     <div class="logo-box">
       <svg class="flask-svg" viewBox="0 0 100 100">
-        <path d="M35 20 L35 45 L15 85 L85 85 L65 45 L65 20 Z" fill="none" stroke="var(--text)" stroke-width="4" stroke-linejoin="round"/>
-        <rect x="30" y="10" width="40" height="10" rx="2" fill="none" stroke="var(--text)" stroke-width="4"/>
-        <path d="M22 70 L78 70 L85 85 L15 85 Z" class="flask-liquid"/>
-        <circle cx="40" cy="75" r="3" class="flask-bubble"/>
-        <circle cx="60" cy="80" r="2" class="flask-bubble"/>
+        <path d="M35 20 L35 45 L15 85 L85 85 L65 45 L65 20 Z" fill="none" stroke="var(--text)" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="30" y="10" width="40" height="10" rx="2" fill="none" stroke="var(--text)" stroke-width="3"/>
+        <path d="M24 68 L76 68 L82 83 L18 83 Z" class="flask-liquid"/>
+        <circle cx="40" cy="72" r="3" class="flask-bubble"/>
       </svg>
       <div class="logo-title">Forest<span>Test</span></div>
       <svg class="candle-svg" viewBox="0 0 100 100">
-        <rect x="30" y="40" width="40" height="50" rx="5" fill="none" stroke="var(--text)" stroke-width="4"/>
-        <path d="M50 40 L50 20" fill="none" stroke="var(--text)" stroke-width="4"/>
-        <path d="M50 35 Q40 25 50 10 Q60 25 50 35 Z" fill="#e07a72" class="candle-flame"/>
+        <path d="M50 35 Q42 25 50 10 Q58 25 50 35 Z" class="candle-flame"/>
+        <rect x="30" y="40" width="40" height="50" rx="3" class="candle-wax"/>
+        <line x1="50" y1="40" x2="50" y2="30" class="candle-wick"/>
       </svg>
     </div>
     <nav>
@@ -60,7 +59,6 @@
     const subject = subjects.find(s => s.id === id);
     document.getElementById("title").textContent = subject ? subject.name : "Не найдено";
     
-    // Защита от отсутствия данных
     const rawData = questions[id] || {};
     const data = { test: rawData.test || [], open: rawData.open || [] };
 
@@ -87,7 +85,6 @@
 
     function fillTopics() {
       const source = currentTab === "test" ? data.test : data.open;
-      // Убираем пустые темы и дубликаты
       let topics = [...new Set(source.map(q => q.topic ? q.topic.trim() : "Разное"))];
       topics = topics.filter(t => t !== "");
       topicFilter.innerHTML = `<option value="">Все темы</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join("");
@@ -100,7 +97,7 @@
       
       let filtered = source.filter(item => {
         const itemTopic = item.topic ? item.topic.trim() : "Разное";
-        // Сравниваем темы (игнорируя регистр)
+        // Сравниваем темы без учета регистра и пробелов
         const matchTopic = !topic || itemTopic.toLowerCase() === topic.toLowerCase();
         const matchQuery = !query || (item.q && item.q.toLowerCase().includes(query));
         return matchTopic && matchQuery;
@@ -200,7 +197,6 @@
       });
     }
 
-    // Слушатели для фильтра и билетов
     topicFilter.onchange = () => currentTab === "test" ? renderTest() : renderOpen();
     searchInput.oninput = () => currentTab === "test" ? renderTest() : renderOpen();
     btnShuffle.onclick = () => { isShuffled = !isShuffled; btnShuffle.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
@@ -211,7 +207,6 @@
 
     renderTest();
 
-    // Кнопка темы (починена)
     const btnTheme = document.getElementById("theme-btn");
     const isDark = localStorage.getItem("theme") === "dark";
     if (isDark) { document.body.classList.add("dark"); btnTheme.innerHTML = "☀️"; }
