@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Теория | Rain Test</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo-box">
+      <svg class="medusa-svg-small" viewBox="0 0 100 100">
+        <path class="medusa-head" d="M 20 48 C 20 18, 80 18, 80 48 C 65 54, 35 54, 20 48 Z" />
+        <path class="medusa-tentacle" d="M 32 51 Q 26 68, 34 86" />
+        <path class="medusa-tentacle" d="M 44 53 Q 40 72, 46 92" />
+        <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
+        <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
+      </svg>
+      <div class="logo-title">Rain<span>Test</span></div>
+    </div>
+    <nav>
+      <a href="index.html">Дисциплины</a>
+      <a href="theory.html" class="active">Теория</a>
+      <a href="tickets.html">Билеты</a>
+      <a href="progress.html">Прогресс</a>
+      <a href="admin.html">Панель</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header>
+      <h1>Теория и конспекты</h1>
+      <button class="theme-btn" id="theme-btn">🌙</button>
+    </header>
+
+    <div id="admin-theory-box" style="display: none; margin-bottom: 30px;">
+      <div class="question">
+        <h3>Добавить теорию</h3>
+        <input type="text" id="th-title" placeholder="Заголовок" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+        <textarea id="th-content" placeholder="Текст теории (можно вставлять картинки через HTML: <img src='...'>)" rows="5" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
+        <button class="btn-primary" onclick="saveTheory()">Сохранить</button>
+      </div>
+    </div>
+
+    <main id="theory-list"><p>Загрузка...</p></main>
+  </div>
+  <button id="scroll-top">↑</button>
+
+  <script>
+    const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Wbus_dDyxCuBBxZrxubw6Q_aQnqMCAM';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let isAdmin = false;
+    const adminBox = document.getElementById("admin-theory-box");
+
+    db.auth.getSession().then(({ data: { session } }) => {
+      if (session) { isAdmin = true; adminBox.style.display = "block"; }
+    });
+
+    async function loadTheory() {
+      const { data, error } = await db.from('theory').select('*').order('id', { ascending: false });
+      const list = document.getElementById("theory-list");
+      if (error) { list.innerHTML = `<p class="bad">Ошибка: ${error.message}. Возможно, таблица не создана!</p>`; return; }
+      
+      if (!data.length) { list.innerHTML = "<p>Пока нет добавленной теории.</p>"; return; }
+      
+      list.innerHTML = data.map(t => `
+        <div class="question">
+          <h2>${t.title}</h2>
+          <div>${t.content}</div>
+        </div>
+      `).join("");
+    }
+
+    window.saveTheory = async () => {
+      const title = document.getElementById("th-title").value;
+      const content = document.getElementById("th-content").value;
+      const { error } = await db.from('theory').insert([{ title, content }]);
+      if (error) alert("Ошибка: " + error.message);
+      else { document.getElementById("th-title").value = ""; document.getElementById("th-content").value = ""; loadTheory(); }
+    };
+
+    loadTheory();
+
+    const btn = document.getElementById("theme-btn");
+    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
+    btn.onclick = () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+      btn.innerHTML = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    };
+  </script>
+</body>
+</html>

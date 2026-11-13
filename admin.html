@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Админка | Rain Test</title>
+  <title>Панель | Rain Test</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -14,13 +14,16 @@
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
-      <a href="admin.html" class="active">Админка</a>
+      <a href="theory.html">Теория</a>
+      <a href="tickets.html">Билеты</a>
+      <a href="progress.html">Прогресс</a>
+      <a href="admin.html" class="active">Панель</a>
     </nav>
   </aside>
 
   <div class="main-content">
     <header>
-      <h1>Админ-панель</h1>
+      <h1>Панель управления</h1>
       <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
 
@@ -35,9 +38,8 @@
 
       <div id="panel-box" style="display: none;">
         <button class="btn-primary" id="logout-btn" style="margin-bottom: 20px;">Выйти</button>
-        
         <div class="question">
-          <h2>Добавить новый вопрос</h2>
+          <h2>Добавить вопрос</h2>
           <select id="subject" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
             <option value="anatomiya">Анатомия</option>
             <option value="obshaya">Общая психология</option>
@@ -57,7 +59,14 @@
             <input type="text" id="opt0" placeholder="Вариант А" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
             <input type="text" id="opt1" placeholder="Вариант Б" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
             <input type="text" id="opt2" placeholder="Вариант В" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            <input type="number" id="correct" placeholder="Правильный ответ (0, 1 или 2)" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+            
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Правильный ответ:</label>
+            <select id="correct" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+              <option value="0">Вариант А</option>
+              <option value="1">Вариант Б</option>
+              <option value="2">Вариант В</option>
+            </select>
+
             <textarea id="explain" placeholder="Пояснение к ответу" rows="2" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
           </div>
 
@@ -75,7 +84,6 @@
   <script>
     const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_Wbus_dDyxCuBBxZrxubw6Q_aQnqMCAM';
-
     const { createClient } = supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -91,7 +99,6 @@
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       const { data, error } = await db.auth.signInWithPassword({ email, password });
-      
       if (error) { authMsg.textContent = "Ошибка: " + error.message; }
       else { authMsg.textContent = ""; showPanel(); }
     };
@@ -123,12 +130,7 @@
       const topic = document.getElementById("topic").value;
       const qText = document.getElementById("q-text").value;
       
-      let payload = {
-        subject: subject,
-        topic: topic,
-        question_type: type,
-        question_text: qText
-      };
+      let payload = { subject, topic, question_type: type, question_text: qText };
 
       if (type === "test") {
         payload.options = [
@@ -149,7 +151,7 @@
         document.getElementById("save-msg").textContent = "Ошибка: " + error.message;
       } else {
         document.getElementById("save-msg").style.color = "var(--ok)";
-        document.getElementById("save-msg").textContent = "Вопрос успешно добавлен!";
+        document.getElementById("save-msg").textContent = "Вопрос добавлен!";
         document.getElementById("q-text").value = "";
         document.getElementById("opt0").value = "";
         document.getElementById("opt1").value = "";
@@ -159,14 +161,12 @@
       }
     };
 
-    // Тема
     const btn = document.getElementById("theme-btn");
     if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
-      const nowDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", nowDark ? "dark" : "light");
-      btn.innerHTML = nowDark ? "☀️" : "🌙";
+      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+      btn.innerHTML = document.body.classList.contains("dark") ? "☀️" : "🌙";
     };
   </script>
 </body>
