@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мой прогресс</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo-box">
+      <svg class="medusa-svg" viewBox="0 0 100 100">
+        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
+        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
+        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
+        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
+      </svg>
+      <div class="logo-title">Neural<span>Drift</span></div>
+    </div>
+    <nav>
+      <a href="index.html">Дисциплины</a>
+      <a href="tickets.html">Билеты</a>
+      <a href="progress.html" class="active">Прогресс</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header>
+      <h1>Ваш прогресс</h1>
+    </header>
+    <main id="progress-content" class="progress-container"></main>
+  </div>
+  <button id="scroll-top">↑</button>
+
+  <script src="data.js"></script>
+  <script>
+    const content = document.getElementById("progress-content");
+    const learned = JSON.parse(localStorage.getItem("learned") || "{}");
+    
+    let html = "";
+    subjects.forEach(sub => {
+      const subData = questions[sub.id] || { test: [], open: [] };
+      const totalTest = subData.test ? subData.test.length : 0;
+      const totalOpen = subData.open ? subData.open.length : 0;
+      const total = totalTest + totalOpen;
+
+      if (total === 0) return; // Пропускаем пустые дисциплины
+
+      const learnedData = learned[sub.id] || { test: [], open: [] };
+      const learnedTest = learnedData.test ? learnedData.test.length : 0;
+      const learnedOpen = learnedData.open ? learnedData.open.length : 0;
+      
+      const percent = total > 0 ? Math.round(((learnedTest + learnedOpen) / total) * 100) : 0;
+
+      html += `
+        <div class="progress-card">
+          <div class="progress-title">${sub.name}</div>
+          <div class="progress-text">
+            <span>Изучено: ${learnedTest + learnedOpen} из ${total} (${percent}%)</span>
+            <span>Тесты: ${learnedTest}/${totalTest} | Открытые: ${learnedOpen}/${totalOpen}</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" style="width: ${percent}%"></div>
+          </div>
+        </div>
+      `;
+    });
+
+    if (!html) content.innerHTML = "<p>Нет данных для отображения.</p>";
+    else content.innerHTML = html;
+
+    const scrollBtn = document.getElementById("scroll-top");
+    window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
+    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  </script>
+</body>
+</html>

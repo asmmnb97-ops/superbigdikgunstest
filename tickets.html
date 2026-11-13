@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Билеты</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo-box">
+      <svg class="medusa-svg" viewBox="0 0 100 100">
+        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
+        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
+        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
+        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
+      </svg>
+      <div class="logo-title">Neural<span>Drift</span></div>
+    </div>
+    <nav>
+      <a href="index.html">Дисциплины</a>
+      <a href="tickets.html" class="active">Билеты</a>
+      <a href="progress.html">Прогресс</a>
+    </nav>
+  </aside>
+
+  <div class="main-content">
+    <header>
+      <h1>Генератор билетов</h1>
+    </header>
+    <main>
+      <div class="controls">
+        <select id="ticket-subject" style="padding: 10px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 4px;">
+          <option value="">Выберите дисциплину</option>
+        </select>
+        <input type="number" id="ticket-count" value="3" min="1" max="10" style="width: 80px; padding: 10px; background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 4px;" title="Кол-во вопросов">
+        <button class="btn-primary" id="gen-ticket">Сгенерировать</button>
+      </div>
+
+      <div id="ticket-result"></div>
+    </main>
+  </div>
+  <button id="scroll-top">↑</button>
+
+  <script src="data.js"></script>
+  <script>
+    const subSelect = document.getElementById("ticket-subject");
+    subjects.forEach(s => {
+      subSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+    });
+
+    document.getElementById("gen-ticket").onclick = () => {
+      const subId = subSelect.value;
+      const count = +document.getElementById("ticket-count").value;
+      const resultBox = document.getElementById("ticket-result");
+
+      if (!subId) { resultBox.innerHTML = "<p class='bad'>Выберите дисциплину!</p>"; return; }
+      
+      const subData = questions[subId] || { open: [], test: [] };
+      // Берем только открытые вопросы (как вы просили)
+      let pool = subData.open || [];
+      
+      if (pool.length === 0) { resultBox.innerHTML = "<p class='bad'>В этой дисциплине нет открытых вопросов.</p>"; return; }
+
+      // Перемешиваем и берем нужное количество
+      pool = pool.sort(() => 0.5 - Math.random()).slice(0, count);
+
+      let html = `<div class="ticket-card"><h3>Билет (${pool.length} вопр.)</h3>`;
+      pool.forEach((q, i) => {
+        html += `<div class="ticket-q"><b>${i+1}.</b> ${q.q}</div>`;
+      });
+      html += `</div>`;
+      resultBox.innerHTML = html;
+    };
+
+    const scrollBtn = document.getElementById("scroll-top");
+    window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
+    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  </script>
+</body>
+</html>

@@ -9,17 +9,18 @@
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <svg class="jellyfish-svg" viewBox="0 0 100 100">
-        <path d="M20 50 C20 20 80 20 80 50 C80 60 70 65 50 65 C30 65 20 60 20 50 Z" class="jelly-bell"/>
-        <path d="M30 60 Q25 80 30 95" class="jelly-tentacle"/>
-        <path d="M50 65 Q50 85 55 100" class="jelly-tentacle"/>
-        <path d="M70 60 Q75 80 70 95" class="jelly-tentacle"/>
+      <svg class="medusa-svg" viewBox="0 0 100 100">
+        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
+        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
+        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
+        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
       </svg>
-      <div class="logo-title">Forest<span>Test</span></div>
+      <div class="logo-title">Neural<span>Drift</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
-      <a href="rating.html">Прогресс</a>
+      <a href="tickets.html">Билеты</a>
+      <a href="progress.html">Прогресс</a>
     </nav>
   </aside>
 
@@ -27,25 +28,22 @@
     <header>
       <a href="index.html" class="back-link">← Назад</a>
       <h1 id="title"></h1>
-      <button class="theme-btn" id="theme-btn">☾</button>
     </header>
 
     <div class="controls">
       <div class="tabs">
         <button id="tab-test" class="active">Тесты</button>
         <button id="tab-open">Открытые</button>
+        <button id="tab-fav">Избранное</button>
       </div>
       <div class="tools">
         <select id="topic-filter"><option value="">Все темы</option></select>
         <input id="search-input" type="text" placeholder="Поиск...">
-        <button id="btn-shuffle" title="Перемешать">⤨</button>
-        <button id="btn-random" title="Случайные 5 вопросов">🎲 Билет</button>
       </div>
     </div>
 
     <main id="content"></main>
   </div>
-
   <button id="scroll-top">↑</button>
 
   <script src="data.js"></script>
@@ -60,84 +58,132 @@
     const content = document.getElementById("content");
     const tabTest = document.getElementById("tab-test");
     const tabOpen = document.getElementById("tab-open");
+    const tabFav = document.getElementById("tab-fav");
     const topicFilter = document.getElementById("topic-filter");
     const searchInput = document.getElementById("search-input");
-    const btnShuffle = document.getElementById("btn-shuffle");
-    const btnRandom = document.getElementById("btn-random");
 
     let currentTab = "test";
-    let isShuffled = false;
-    let limitRandom = 0;
 
-    function shuffle(arr) {
-      let a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
+    // --- Управление прогрессом (изученные вопросы) ---
+    function markLearned(qid, type) {
+      let learned = JSON.parse(localStorage.getItem("learned") || "{}");
+      if (!learned[id]) learned[id] = { test: [], open: [] };
+      if (!learned[id][type].includes(qid)) {
+        learned[id][type].push(qid);
+        localStorage.setItem("learned", JSON.stringify(learned));
       }
-      return a;
+    }
+    function isLearned(qid, type) {
+      let learned = JSON.parse(localStorage.getItem("learned") || "{}");
+      return learned[id] && learned[id][type] && learned[id][type].includes(qid);
+    }
+
+    // --- Избранное ---
+    function toggleFav(qid) {
+      let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+      if (favs.includes(qid)) favs = favs.filter(f => f !== qid);
+      else favs.push(qid);
+      localStorage.setItem("favorites", JSON.stringify(favs));
+      return favs.includes(qid);
+    }
+    function isFav(qid) {
+      let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+      return favs.includes(qid);
     }
 
     function fillTopics() {
-      const source = currentTab === "test" ? data.test : data.open;
+      const source = currentTab === "test" ? data.test : (currentTab === "open" ? data.open : [...data.test, ...data.open]);
       let topics = [...new Set(source.map(q => q.topic ? q.topic.trim() : "Разное"))];
       topics = topics.filter(t => t !== "");
       topicFilter.innerHTML = `<option value="">Все темы</option>` + topics.map(t => `<option value="${t}">${t}</option>`).join("");
     }
 
     function getFilteredItems() {
-      const source = currentTab === "test" ? data.test : data.open;
+      let source = [];
+      if (currentTab === "test") source = data.test;
+      else if (currentTab === "open") source = data.open;
+      else source = [...data.test, ...data.open].filter(item => isFav(item.id)); // Только избранные
+
       const topic = topicFilter.value;
       const query = searchInput.value.toLowerCase().trim();
       
-      let filtered = source.filter(item => {
+      return source.filter(item => {
         const itemTopic = item.topic ? item.topic.trim() : "Разное";
         const matchTopic = !topic || itemTopic.toLowerCase() === topic.toLowerCase();
         const matchQuery = !query || (item.q && item.q.toLowerCase().includes(query));
         return matchTopic && matchQuery;
       });
-
-      if (isShuffled) filtered = shuffle(filtered);
-      if (limitRandom > 0) filtered = filtered.slice(0, limitRandom);
-      return filtered;
     }
 
+    // Логика оценок открытых
     function updateScore(points, questionId) {
       let scores = JSON.parse(localStorage.getItem("scores") || "{}");
       let history = JSON.parse(localStorage.getItem("score_history") || "{}");
-      
       if (!scores[id]) scores[id] = 0;
-      
-      if (history[questionId]) {
-        scores[id] -= history[questionId];
-      }
-      
+      if (history[questionId]) scores[id] -= history[questionId];
       scores[id] += points;
       history[questionId] = points;
       if (scores[id] < 0) scores[id] = 0;
-
       localStorage.setItem("scores", JSON.stringify(scores));
       localStorage.setItem("score_history", JSON.stringify(history));
     }
 
-    function renderTest() {
-      currentTab = "test";
+    function render() {
       fillTopics();
       const items = getFilteredItems();
-      if (!items.length) { content.innerHTML = "<p style='opacity:0.6'>Нет вопросов.</p>"; return; }
+      
+      if (!items.length) { 
+        content.innerHTML = "<p style='opacity:0.6'>В этой категории пока нет вопросов.</p>"; 
+        return; 
+      }
 
       content.innerHTML = items.map((item, i) => {
         const uid = item.id || "q_" + i + "_" + Math.random().toString(36).substr(2, 5);
-        return `
-        <div class="question">
-          <p><span class="topic-badge">${item.topic || "Разное"}</span></p>
-          <p><b>${item.q || "Вопрос без текста"}</b></p>
-          ${item.options ? item.options.map((opt, j) => `<label><input type="radio" name="q_${uid}" value="${j}"> ${opt}</label>`).join("") : ""}
-          <button class="check-one" data-uid="${uid}" data-idx="${i}">Проверить</button>
-          <div class="feedback" id="fb_${uid}"></div>
-        </div>
-      `}).join("");
+        const favActive = isFav(uid) ? "active" : "";
+        const star = `<button class="fav-btn ${favActive}" data-uid="${uid}">★</button>`;
 
+        if (currentTab === "test" || (currentTab === "fav" && item.options)) {
+          return `
+          <div class="question">
+            ${star}
+            <p><span class="topic-badge">${item.topic || "Разное"}</span></p>
+            <p><b>${item.q}</b></p>
+            ${item.options.map((opt, j) => `<label><input type="radio" name="q_${uid}" value="${j}"> ${opt}</label>`).join("")}
+            <button class="check-one" data-uid="${uid}" data-idx="${i}">Проверить</button>
+            <div class="feedback" id="fb_${uid}"></div>
+          </div>`;
+        } else {
+          return `
+          <div class="open-q">
+            ${star}
+            <p><span class="topic-badge">${item.topic || "Разное"}</span></p>
+            <p><b>${item.q}</b></p>
+            <textarea rows="4" placeholder="Напишите свой вариант..."></textarea>
+            <button class="show-answer" data-uid="${uid}">Показать примерный ответ</button>
+            <div class="model-answer" id="ma_${uid}" style="display:none">
+              <p><b>Примерный ответ:</b> ${item.answer || "Ответ не добавлен"}</p>
+              <div class="grade-box">
+                <span>Оцените свой ответ (1-5):</span>
+                <div class="grade-buttons" id="grades_${uid}">
+                  ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-uid="${uid}" data-val="${n}">${n}</button>`).join("")}
+                </div>
+                <span class="grade-status" id="status_${uid}"></span>
+              </div>
+            </div>
+          </div>`;
+        }
+      }).join("");
+
+      // Слушатели для звездочек
+      document.querySelectorAll(".fav-btn").forEach(btn => {
+        btn.onclick = () => {
+          const uid = btn.dataset.uid;
+          const active = toggleFav(uid);
+          btn.classList.toggle("active", active);
+        };
+      });
+
+      // Слушатели для проверки тестов
       document.querySelectorAll(".check-one").forEach(btn => {
         btn.onclick = () => {
           const uid = btn.dataset.uid;
@@ -148,7 +194,10 @@
           if (!chosen) { fb.innerHTML = `<p class="bad">Выберите ответ.</p>`; return; }
           
           const ok = +chosen.value === item.correct;
-          if (ok) updateScore(1, uid);
+          if (ok) { 
+            updateScore(1, uid); 
+            markLearned(uid, "test"); // Отмечаем как изученное
+          }
           
           fb.innerHTML = `
             <p class="${ok ? "ok" : "bad"}">${ok ? "Верно (+1 балл)" : "Неверно"}</p>
@@ -156,35 +205,8 @@
           `;
         };
       });
-    }
 
-    function renderOpen() {
-      currentTab = "open";
-      fillTopics();
-      const items = getFilteredItems();
-      if (!items.length) { content.innerHTML = "<p style='opacity:0.6'>Нет вопросов.</p>"; return; }
-
-      content.innerHTML = items.map((item, i) => {
-        const uid = item.id || "o_" + i + "_" + Math.random().toString(36).substr(2, 5);
-        return `
-        <div class="open-q">
-          <p><span class="topic-badge">${item.topic || "Разное"}</span></p>
-          <p><b>${item.q || "Вопрос без текста"}</b></p>
-          <textarea rows="4" placeholder="Напишите свой вариант..."></textarea>
-          <button class="show-answer" data-uid="${uid}">Показать примерный ответ</button>
-          <div class="model-answer" id="ma_${uid}" style="display:none">
-            <p><b>Примерный ответ:</b> ${item.answer || "Ответ не добавлен"}</p>
-            <div class="grade-box">
-              <span>Оцените свой ответ (1-5):</span>
-              <div class="grade-buttons" id="grades_${uid}">
-                ${[1,2,3,4,5].map(n => `<button class="grade-btn" data-uid="${uid}" data-val="${n}">${n}</button>`).join("")}
-              </div>
-              <span class="grade-status" id="status_${uid}"></span>
-            </div>
-          </div>
-        </div>
-      `}).join("");
-
+      // Слушатели для открытых
       document.querySelectorAll(".show-answer").forEach(btn => {
         btn.onclick = () => {
           const uid = btn.dataset.uid;
@@ -199,37 +221,24 @@
           const uid = btn.dataset.uid;
           const val = +btn.dataset.val;
           updateScore(val, uid); 
+          markLearned(uid, "open"); // Отмечаем как изученное
           
           const parent = document.getElementById("grades_" + uid);
           parent.querySelectorAll(".grade-btn").forEach(b => b.classList.remove("active"));
           btn.classList.add("active");
-          
-          const status = document.getElementById("status_" + uid);
-          status.textContent = `Оценка: ${val}`;
+          document.getElementById("status_" + uid).textContent = `Оценка: ${val}`;
         };
       });
     }
 
-    topicFilter.onchange = () => currentTab === "test" ? renderTest() : renderOpen();
-    searchInput.oninput = () => currentTab === "test" ? renderTest() : renderOpen();
-    btnShuffle.onclick = () => { isShuffled = !isShuffled; btnShuffle.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
-    btnRandom.onclick = () => { limitRandom = limitRandom > 0 ? 0 : 5; btnRandom.classList.toggle("active"); currentTab === "test" ? renderTest() : renderOpen(); };
+    topicFilter.onchange = render;
+    searchInput.oninput = render;
 
-    tabTest.onclick = () => { tabTest.classList.add("active"); tabOpen.classList.remove("active"); renderTest(); };
-    tabOpen.onclick = () => { tabOpen.classList.add("active"); tabTest.classList.remove("active"); renderOpen(); };
+    tabTest.onclick = () => { currentTab = "test"; tabTest.classList.add("active"); tabOpen.classList.remove("active"); tabFav.classList.remove("active"); render(); };
+    tabOpen.onclick = () => { currentTab = "open"; tabOpen.classList.add("active"); tabTest.classList.remove("active"); tabFav.classList.remove("active"); render(); };
+    tabFav.onclick = () => { currentTab = "fav"; tabFav.classList.add("active"); tabTest.classList.remove("active"); tabOpen.classList.remove("active"); render(); };
 
-    renderTest();
-
-    const btnTheme = document.getElementById("theme-btn");
-    const isDark = localStorage.getItem("theme") === "dark" || !localStorage.getItem("theme");
-    if (isDark) { document.body.classList.add("dark"); btnTheme.innerHTML = "☾"; }
-    else { btnTheme.innerHTML = "☀"; }
-    btnTheme.onclick = () => { 
-      document.body.classList.toggle("dark"); 
-      const nowDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", nowDark ? "dark" : "light"); 
-      btnTheme.innerHTML = nowDark ? "☾" : "☀";
-    };
+    render();
 
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";

@@ -3,73 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Forest Test</title>
+  <title>Neural Drift</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <!-- МЕДУЗА -->
-      <svg class="jellyfish-svg" viewBox="0 0 100 100">
-        <path d="M20 50 C20 20 80 20 80 50 C80 60 70 65 50 65 C30 65 20 60 20 50 Z" class="jelly-bell"/>
-        <path d="M30 60 Q25 80 30 95" class="jelly-tentacle"/>
-        <path d="M50 65 Q50 85 55 100" class="jelly-tentacle"/>
-        <path d="M70 60 Q75 80 70 95" class="jelly-tentacle"/>
+      <svg class="medusa-svg" viewBox="0 0 100 100">
+        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
+        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
+        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
+        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
       </svg>
-
-      <div class="logo-title">Forest<span>Test</span></div>
+      <div class="logo-title">Neural<span>Drift</span></div>
     </div>
     
     <nav>
       <a href="index.html" class="active">Дисциплины</a>
-      <a href="rating.html">Прогресс</a>
-      <a href="#" class="disabled">Билеты (скоро)</a>
-      <a href="#" class="disabled">Статьи (скоро)</a>
+      <a href="tickets.html">Билеты</a>
+      <a href="progress.html">Прогресс</a>
+      <a href="#" class="disabled">Заметки (скоро)</a>
     </nav>
   </aside>
 
   <div class="main-content">
     <header>
       <h1>Выберите дисциплину</h1>
-      <button class="theme-btn" id="theme-btn">☀</button>
     </header>
     <main>
       <div id="subject-list" class="grid"></div>
     </main>
   </div>
-
-  <button id="scroll-top" title="Наверх">↑</button>
+  <button id="scroll-top">↑</button>
 
   <script src="data.js"></script>
   <script>
     const list = document.getElementById("subject-list");
-    
-    // Кибер-символы
-    const cyberIcons = ["◈", "⟁", "⧉", "⎔", "⌬", "⏣"];
+    const runes = ["☾", "⚶", "🜁", "🜃", "🜄", "🜂"];
 
     subjects.forEach((s, index) => {
       const a = document.createElement("a");
       a.className = "card";
       a.href = "subject.html?id=" + s.id;
-      
-      const icon = cyberIcons[index % cyberIcons.length];
-      
-      a.innerHTML = `<span class="card-icon">${icon}</span><span>${s.name}</span>`;
+      const rune = runes[index % runes.length];
+      a.innerHTML = `<span class="card-icon">${rune}</span><span>${s.name}</span>`;
       list.appendChild(a);
     });
-
-    // Кнопка темы
-    const btn = document.getElementById("theme-btn");
-    const isDark = localStorage.getItem("theme") === "dark" || !localStorage.getItem("theme"); // По умолчанию темная
-    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☾"; }
-    else { btn.innerHTML = "☀"; }
-    
-    btn.onclick = () => {
-      document.body.classList.toggle("dark");
-      const nowDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", nowDark ? "dark" : "light");
-      btn.innerHTML = nowDark ? "☾" : "☀";
-    };
 
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
