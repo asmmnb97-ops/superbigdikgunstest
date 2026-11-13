@@ -9,33 +9,21 @@
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <!-- ДЕРЕВО -->
-      <svg class="tree-svg" viewBox="0 0 100 100">
-        <path d="M50 90 L50 50" stroke="var(--text)" stroke-width="6" stroke-linecap="round" class="tree-trunk"/>
-        <path d="M50 70 L30 50" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>
-        <path d="M50 65 L70 45" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>
-        <circle cx="50" cy="35" r="25" class="tree-leaves"/>
-        <circle cx="30" cy="50" r="15" class="tree-leaves"/>
-        <circle cx="70" cy="45" r="18" class="tree-leaves"/>
-        <circle cx="35" cy="30" r="3" class="tree-spore"/>
-        <circle cx="65" cy="25" r="2" class="tree-spore"/>
-        <circle cx="55" cy="55" r="2" class="tree-spore"/>
+      <!-- МЕДУЗА -->
+      <svg class="jellyfish-svg" viewBox="0 0 100 100">
+        <path d="M20 50 C20 20 80 20 80 50 C80 60 70 65 50 65 C30 65 20 60 20 50 Z" class="jelly-bell"/>
+        <path d="M30 60 Q25 80 30 95" class="jelly-tentacle"/>
+        <path d="M50 65 Q50 85 55 100" class="jelly-tentacle"/>
+        <path d="M70 60 Q75 80 70 95" class="jelly-tentacle"/>
       </svg>
 
       <div class="logo-title">Forest<span>Test</span></div>
-      
-      <!-- СВЕЧА -->
-      <svg class="candle-svg" viewBox="0 0 100 100">
-        <path d="M50 35 Q42 25 50 10 Q58 25 50 35 Z" class="candle-flame"/>
-        <rect x="30" y="40" width="40" height="50" rx="3" class="candle-wax"/>
-        <line x1="50" y1="40" x2="50" y2="30" class="candle-wick"/>
-      </svg>
     </div>
     
     <nav>
       <a href="index.html" class="active">Дисциплины</a>
-      <a href="rating.html">Рейтинг</a>
-      <a href="#" class="disabled">Теория (скоро)</a>
+      <a href="rating.html">Прогресс</a>
+      <a href="#" class="disabled">Билеты (скоро)</a>
       <a href="#" class="disabled">Статьи (скоро)</a>
     </nav>
   </aside>
@@ -43,7 +31,7 @@
   <div class="main-content">
     <header>
       <h1>Выберите дисциплину</h1>
-      <button class="theme-btn" id="theme-btn">🌙</button>
+      <button class="theme-btn" id="theme-btn">☀</button>
     </header>
     <main>
       <div id="subject-list" class="grid"></div>
@@ -56,30 +44,31 @@
   <script>
     const list = document.getElementById("subject-list");
     
-    // Уникальные закорючки для дисциплин
-    const runes = ["☾", "⚶", "🜁", "🜃", "🜄", "🜂"];
+    // Кибер-символы
+    const cyberIcons = ["◈", "⟁", "⧉", "⎔", "⌬", "⏣"];
 
     subjects.forEach((s, index) => {
       const a = document.createElement("a");
       a.className = "card";
       a.href = "subject.html?id=" + s.id;
       
-      // Берем закорючку по индексу
-      const rune = runes[index % runes.length];
+      const icon = cyberIcons[index % cyberIcons.length];
       
-      a.innerHTML = `<span class="card-icon">${rune}</span><span>${s.name}</span>`;
+      a.innerHTML = `<span class="card-icon">${icon}</span><span>${s.name}</span>`;
       list.appendChild(a);
     });
 
     // Кнопка темы
     const btn = document.getElementById("theme-btn");
-    const isDark = localStorage.getItem("theme") === "dark";
-    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
+    const isDark = localStorage.getItem("theme") === "dark" || !localStorage.getItem("theme"); // По умолчанию темная
+    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☾"; }
+    else { btn.innerHTML = "☀"; }
+    
     btn.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");
       localStorage.setItem("theme", nowDark ? "dark" : "light");
-      btn.innerHTML = nowDark ? "☀️" : "🌙";
+      btn.innerHTML = nowDark ? "☾" : "☀";
     };
 
     const scrollBtn = document.getElementById("scroll-top");

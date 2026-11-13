@@ -1,207 +1,221 @@
 :root {
-  /* Светлая тема: Сиренево-фиолетовый, пергамент */
-  --bg: #f4f5fb;
-  --card: #ffffff;
-  --text: #232633;
-  --accent: #5b5f9e; /* Фиолетовый */
+  /* Светлая тема: Светло-голубой кибер-стиль (если включишь) */
+  --bg: #eaf2f8;
+  --card: rgba(255, 255, 255, 0.7);
+  --text: #1a2a3a;
+  --accent: #3b82f6;
   --accent-text: #ffffff;
-  --muted: #e7e8f2;
-  --border: #d1d3e6;
-  --ok: #2f7d4f;
-  --bad: #b3453f;
-  --wood: #d1d3e6;
+  --muted: #d1e0ed;
+  --border: #a0c4e8;
+  --ok: #10b981;
+  --bad: #ef4444;
+  --glow: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
 body.dark {
-  /* Тёмная тема: Бирюзово-зелёный, ночной лес */
-  --bg: #12141c;
-  --card: #1c1f2a;
-  --text: #e6e8f0;
-  --accent: #4e8f8a; /* Бирюзовый */
-  --accent-text: #ffffff;
-  --muted: #272b38;
-  --border: #333747;
-  --ok: #6fbf8f;
-  --bad: #e07a72;
-  --wood: #4a5a5a;
+  /* Тёмная тема: Глубокий космос / Cybercore */
+  --bg: #050a14; 
+  --card: rgba(13, 22, 41, 0.8); 
+  --text: #e2f1ff; 
+  --accent: #00f0ff; /* Неоновый бирюзовый */
+  --accent-text: #000000;
+  --muted: #0f1c33;
+  --border: #1e3a8a;
+  --ok: #00ffcc;
+  --bad: #ff0055;
+  --glow: 0 0 20px rgba(0, 240, 255, 0.3);
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: 'Courier New', Courier, monospace; /* Моноширинный шрифт для киберпанка */
   background-color: var(--bg);
   color: var(--text);
-  line-height: 1.5;
+  line-height: 1.6;
   display: flex;
   min-height: 100vh;
   position: relative;
-  transition: background-color .25s, color .25s;
+  transition: background-color .3s, color .3s;
+  overflow-x: hidden;
 }
 
-/* ФОН: Волны и звездочки (как в начале) */
+/* ФОН: Неоновые волны и сетка */
 body::before {
-  content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 200px;
-  pointer-events: none; z-index: 0; opacity: .9;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'><g fill='none' stroke='%235b5f9e' stroke-width='1.2' opacity='0.18'><path d='M0 150 Q 75 110 150 150 T 300 150 T 450 150 T 600 150'/><path d='M0 170 Q 75 130 150 170 T 300 170 T 450 170 T 600 170'/></g><g fill='%235b5f9e' opacity='0.22'><path d='M120 60 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2z'/><circle cx='220' cy='90' r='2'/></g></svg>");
-  background-repeat: repeat-x; background-position: bottom center;
-}
-body.dark::before {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='200' viewBox='0 0 600 200'><g fill='none' stroke='%234e8f8a' stroke-width='1.2' opacity='0.22'><path d='M40 150 q30 -40 70 -20 q20 -40 60 -20 q30 -30 70 0 q40 -20 60 20'/><path d='M300 160 q30 -40 70 -20 q20 -40 60 -20 q30 -30 70 0 q40 -20 60 20'/></g><g fill='%234e8f8a' opacity='0.22'><circle cx='140' cy='170' r='2'/><circle cx='260' cy='180' r='2'/></g></svg>");
+  content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 100vh;
+  pointer-events: none; z-index: 0; opacity: 0.15;
+  background-image: 
+    linear-gradient(transparent 95%, var(--accent) 100%),
+    linear-gradient(90deg, transparent 95%, var(--accent) 100%);
+  background-size: 40px 40px;
+  perspective: 500px;
+  transform: rotateX(60deg) scale(2);
+  transform-origin: bottom;
 }
 
 /* Боковое меню */
 .sidebar {
-  width: 260px; background: var(--card); border-right: 1px solid var(--border);
+  width: 260px; 
+  background: var(--card); 
+  backdrop-filter: blur(10px); /* Эффект матового стекла */
+  border-right: 1px solid var(--border);
   padding: 30px 0; position: fixed; height: 100vh; z-index: 10;
   display: flex; flex-direction: column;
+  box-shadow: 5px 0 20px rgba(0,0,0,0.1);
 }
 
-/* ЛОГОТИП: Дерево */
+/* ЛОГОТИП: Медуза */
 .logo-box {
   display: flex; align-items: center; justify-content: center; gap: 15px;
-  margin: 0 auto 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+  margin: 0 auto 30px; padding-bottom: 20px; border-bottom: 1px dashed var(--border);
   width: 85%;
 }
 .logo-title {
   font-size: 24px; font-weight: bold; letter-spacing: 1px; color: var(--text);
   line-height: 1;
+  text-shadow: var(--glow);
 }
-.logo-title span { display: block; font-size: 13px; color: var(--accent); letter-spacing: 2px; font-weight: 600; margin-top: 4px; }
+.logo-title span { display: block; font-size: 13px; color: var(--accent); letter-spacing: 3px; margin-top: 4px; }
 
-/* Дерево */
-.tree-svg { width: 45px; height: 45px; overflow: visible; }
-.tree-trunk { fill: var(--text); opacity: 0.8; }
-.tree-leaves { fill: var(--accent); opacity: 0.9; transition: fill 0.3s; }
-.tree-spore { fill: #ffffff; opacity: 0.6; animation: floatSpore 3s infinite ease-in-out; }
-.tree-spore:nth-child(2) { animation-delay: 1s; }
-@keyframes floatSpore { 0% { transform: translateY(0) scale(1); opacity: 0.8; } 50% { opacity: 0.4; } 100% { transform: translateY(-15px) scale(1.2); opacity: 0; } }
+/* Медуза */
+.jellyfish-svg { width: 50px; height: 50px; overflow: visible; }
+.jelly-bell { fill: var(--accent); opacity: 0.8; filter: drop-shadow(0 0 8px var(--accent)); transition: 0.3s; }
+.jelly-tentacle { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0.6; stroke-dasharray: 10; animation: swim 3s linear infinite; }
+.jelly-tentacle:nth-child(2) { animation-delay: 0.5s; }
+.jelly-tentacle:nth-child(3) { animation-delay: 1s; }
+@keyframes swim { 0% { stroke-dashoffset: 20; transform: translateY(0); } 100% { stroke-dashoffset: 0; transform: translateY(5px); } }
 
-/* Свеча (горит только в темной) */
-.candle-svg { width: 30px; height: 45px; overflow: visible; }
-.candle-wax { fill: var(--muted); stroke: var(--border); stroke-width: 2; }
-.candle-wick { stroke: var(--text); stroke-width: 2; }
-.candle-flame { fill: #ffb84d; opacity: 0; transition: opacity 0.5s; transform-origin: bottom center; }
-body.dark .candle-flame { opacity: 1; animation: flicker 0.1s infinite alternate; }
-@keyframes flicker { 0% { transform: scale(1) rotate(-2deg); } 100% { transform: scale(1.1) rotate(2deg); } }
-
-.sidebar nav { display: flex; flex-direction: column; gap: 5px; padding: 0 15px; }
+.sidebar nav { display: flex; flex-direction: column; gap: 8px; padding: 0 15px; }
 .sidebar nav a {
   padding: 12px 15px; text-decoration: none; color: var(--text); font-size: 16px;
-  border: 1px solid transparent; border-radius: 8px; transition: 0.2s;
+  border: 1px solid transparent; border-radius: 4px; transition: 0.2s;
+  text-transform: uppercase; letter-spacing: 1px; font-weight: bold;
 }
-.sidebar nav a:hover { background: var(--muted); }
-.sidebar nav a.active { background: var(--muted); font-weight: bold; border-left: 3px solid var(--accent); }
+.sidebar nav a:hover { background: var(--muted); border-color: var(--border); box-shadow: var(--glow); }
+.sidebar nav a.active { background: var(--accent); color: var(--accent-text); box-shadow: var(--glow); }
 .sidebar nav a.disabled { opacity: 0.4; cursor: not-allowed; }
 
 .main-content {
   margin-left: 260px; flex: 1; padding: 30px 40px; width: calc(100% - 260px);
   position: relative; z-index: 1;
 }
-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border); padding-bottom: 20px; margin-bottom: 30px; }
-header h1 { margin: 0; font-size: 28px; }
+header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 30px; }
+header h1 { margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; text-shadow: var(--glow); }
 .back-link { color: var(--accent); text-decoration: none; font-size: 15px; display: block; margin-bottom: 8px; font-weight: bold; }
-.back-link:hover { text-decoration: underline; }
+.back-link:hover { text-decoration: underline; box-shadow: var(--glow); }
 
 /* КАРТОЧКИ ДИСЦИПЛИН */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
 .card {
   display: flex; align-items: center; gap: 16px; 
   background: var(--card); 
+  backdrop-filter: blur(5px);
   padding: 24px; 
   border-radius: 8px; 
   text-decoration: none; color: inherit;
   border: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,.05); 
-  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+  transition: all 0.3s;
   position: relative; overflow: hidden;
 }
-/* Закорючки теперь стоят на месте иконки (слева) */
-.card-icon { 
-  font-size: 32px; color: var(--accent); width: 40px; text-align: center; 
-  transition: 0.3s; font-family: serif;
+.card::before { /* Глитч-эффект при наведении */
+  content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: 0.5s;
 }
 .card:hover { 
-  transform: translateY(-2px); 
-  box-shadow: 0 6px 18px rgba(0,0,0,.08); 
+  transform: translateY(-5px); 
   border-color: var(--accent);
+  box-shadow: var(--glow); 
 }
-.card:hover .card-icon { transform: scale(1.2) rotate(10deg); }
-.card span:last-child { font-size: 20px; font-weight: 600; }
+.card:hover::before { left: 100%; }
+.card-icon { 
+  font-size: 28px; color: var(--accent); width: 40px; text-align: center; 
+  transition: 0.3s; font-family: monospace;
+  text-shadow: var(--glow);
+}
+.card span:last-child { font-size: 18px; font-weight: bold; letter-spacing: 1px; }
 
 /* Контролы */
 .controls { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
 .tabs { display: flex; gap: 8px; }
 .tabs button, .tools button {
-  padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 16px; border: 1px solid var(--border); border-radius: 4px;
   background: var(--card); color: var(--text); cursor: pointer; font-size: 14px; transition: 0.2s;
+  text-transform: uppercase; font-weight: bold; font-family: monospace;
 }
-.tabs button:hover, .tools button:hover { background: var(--muted); }
-.tabs button.active, .tools button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.tabs button:hover, .tools button:hover { background: var(--muted); box-shadow: var(--glow); }
+.tabs button.active, .tools button.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); box-shadow: var(--glow); }
 .tools { display: flex; gap: 8px; flex-wrap: wrap; }
 .tools input, .tools select {
-  padding: 10px; border: 1px solid var(--border); border-radius: 8px;
-  background: var(--card); color: var(--text); font-size: 14px; outline: none;
+  padding: 10px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--card); color: var(--text); font-size: 14px; outline: none; font-family: monospace;
 }
+.tools input:focus, .tools select:focus { border-color: var(--accent); box-shadow: var(--glow); }
 
 /* Вопросы */
 .question, .open-q {
   background: var(--card); padding: 24px; border-radius: 8px; margin-bottom: 16px;
   border: 1px solid var(--border); box-shadow: 0 1px 6px rgba(0,0,0,.04);
+  backdrop-filter: blur(5px);
 }
 .topic-badge { 
   display: inline-block; font-size: 12px; color: var(--accent); 
   text-transform: uppercase; letter-spacing: 1px; font-weight: bold; 
   background: var(--muted); padding: 4px 8px; border-radius: 4px; margin-bottom: 10px;
+  border: 1px solid var(--border);
 }
-.question label { display: block; margin: 8px 0; cursor: pointer; padding: 6px; border-radius: 4px; }
+.question label { display: block; margin: 8px 0; cursor: pointer; padding: 6px; border-radius: 4px; font-family: system-ui; }
 .question label:hover { background: var(--muted); }
 .check-one, .show-answer {
-  margin-top: 12px; padding: 10px 16px; border: 1px solid var(--accent); border-radius: 8px;
+  margin-top: 12px; padding: 10px 16px; border: 1px solid var(--accent); border-radius: 4px;
   background: transparent; color: var(--accent); cursor: pointer; font-size: 14px; font-weight: bold; transition: 0.2s;
+  text-transform: uppercase; font-family: monospace;
 }
-.check-one:hover, .show-answer:hover { background: var(--accent); color: var(--accent-text); }
+.check-one:hover, .show-answer:hover { background: var(--accent); color: var(--accent-text); box-shadow: var(--glow); }
 .feedback .ok { color: var(--ok); font-weight: bold; margin-top: 10px; }
 .feedback .bad { color: var(--bad); font-weight: bold; margin-top: 10px; }
-.feedback .explain { background: var(--muted); padding: 12px; border-radius: 8px; margin-top: 8px; font-size: 14px; }
+.feedback .explain { background: var(--muted); padding: 12px; border-radius: 4px; margin-top: 8px; font-size: 14px; border-left: 3px solid var(--accent); font-family: system-ui; }
 .open-q textarea {
-  width: 100%; margin-top: 10px; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--bg); color: var(--text); font-family: inherit; font-size: 15px; resize: vertical;
+  width: 100%; margin-top: 10px; padding: 12px; border-radius: 4px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--text); font-family: monospace; font-size: 15px; resize: vertical; outline: none;
 }
-.model-answer { margin-top: 16px; padding: 16px; background: var(--muted); border-radius: 8px; }
+.open-q textarea:focus { border-color: var(--accent); box-shadow: var(--glow); }
+.model-answer { margin-top: 16px; padding: 16px; background: var(--muted); border-radius: 4px; border-left: 3px solid var(--accent); font-family: system-ui; }
 .grade-box { margin-top: 16px; border-top: 1px dashed var(--border); padding-top: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 .grade-buttons { display: flex; gap: 6px; }
 .grade-btn {
-  width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 50%;
-  background: var(--card); color: var(--text); cursor: pointer; font-weight: bold; transition: 0.2s;
+  width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 4px;
+  background: var(--card); color: var(--text); cursor: pointer; font-weight: bold; transition: 0.2s; font-family: monospace;
 }
-.grade-btn:hover, .grade-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-.grade-status { font-weight: bold; color: var(--ok); }
+.grade-btn:hover, .grade-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); box-shadow: var(--glow); }
 
-/* Рейтинг */
+/* Прогресс (вместо рейтинга) */
 .rating-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 .rating-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
   padding: 24px; display: flex; flex-direction: column; gap: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.05); position: relative; overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden;
+  backdrop-filter: blur(5px);
 }
-.rating-title { font-size: 18px; font-weight: bold; }
-.rating-score { font-size: 32px; font-weight: bold; color: var(--accent); }
-.rating-label { font-size: 14px; color: var(--text); opacity: 0.7; }
+.rating-card:hover { border-color: var(--accent); box-shadow: var(--glow); }
+.rating-title { font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+.rating-score { font-size: 32px; font-weight: bold; color: var(--accent); text-shadow: var(--glow); font-family: monospace; }
+.rating-label { font-size: 14px; color: var(--text); opacity: 0.7; font-family: system-ui; }
 
 /* Утилиты */
 .theme-btn {
   background: var(--card); border: 1px solid var(--border); border-radius: 50%;
   width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: var(--text); font-size: 20px; transition: 0.2s;
+  color: var(--text); font-size: 20px; transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-.theme-btn:hover { background: var(--muted); }
+.theme-btn:hover { background: var(--muted); box-shadow: var(--glow); }
 #scroll-top {
   position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
-  border-radius: 50%; background: var(--accent); color: var(--accent-text);
-  border: none; font-size: 24px; cursor: pointer; display: none; z-index: 100;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: 0.2s;
+  border-radius: 4px; background: var(--accent); color: var(--accent-text);
+  border: 1px solid var(--border); font-size: 24px; cursor: pointer; display: none; z-index: 100;
+  box-shadow: var(--glow); transition: 0.2s; font-family: monospace;
 }
 #scroll-top:hover { transform: translateY(-3px); }
 

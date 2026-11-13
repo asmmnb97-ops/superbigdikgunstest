@@ -3,39 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Мой рейтинг</title>
+  <title>Мой прогресс</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <svg class="tree-svg" viewBox="0 0 100 100">
-        <path d="M50 90 L50 50" stroke="var(--text)" stroke-width="6" stroke-linecap="round" class="tree-trunk"/>
-        <path d="M50 70 L30 50" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>
-        <path d="M50 65 L70 45" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>
-        <circle cx="50" cy="35" r="25" class="tree-leaves"/>
-        <circle cx="30" cy="50" r="15" class="tree-leaves"/>
-        <circle cx="70" cy="45" r="18" class="tree-leaves"/>
-        <circle cx="35" cy="30" r="3" class="tree-spore"/>
-        <circle cx="65" cy="25" r="2" class="tree-spore"/>
+      <svg class="jellyfish-svg" viewBox="0 0 100 100">
+        <path d="M20 50 C20 20 80 20 80 50 C80 60 70 65 50 65 C30 65 20 60 20 50 Z" class="jelly-bell"/>
+        <path d="M30 60 Q25 80 30 95" class="jelly-tentacle"/>
+        <path d="M50 65 Q50 85 55 100" class="jelly-tentacle"/>
+        <path d="M70 60 Q75 80 70 95" class="jelly-tentacle"/>
       </svg>
       <div class="logo-title">Forest<span>Test</span></div>
-      <svg class="candle-svg" viewBox="0 0 100 100">
-        <path d="M50 35 Q42 25 50 10 Q58 25 50 35 Z" class="candle-flame"/>
-        <rect x="30" y="40" width="40" height="50" rx="3" class="candle-wax"/>
-        <line x1="50" y1="40" x2="50" y2="30" class="candle-wick"/>
-      </svg>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
-      <a href="rating.html" class="active">Рейтинг</a>
+      <a href="rating.html" class="active">Прогресс</a>
     </nav>
   </aside>
 
   <div class="main-content">
     <header>
       <h1>Ваш прогресс</h1>
-      <button class="theme-btn" id="theme-btn">🌙</button>
+      <button class="theme-btn" id="theme-btn">☾</button>
     </header>
     <main id="rating-content"></main>
   </div>
@@ -47,7 +38,7 @@
     const scores = JSON.parse(localStorage.getItem("scores") || "{}");
     
     if (Object.keys(scores).length === 0) {
-      content.innerHTML = "<p>Вы пока не набрали баллов. Перейдите к дисциплинам и начните решать!</p>";
+      content.innerHTML = "<p>Вы пока не набрали баллов. Перейдите к дисциплинам!</p>";
     } else {
       let html = "<div class='rating-grid'>";
       for (const [subId, score] of Object.entries(scores)) {
@@ -56,7 +47,7 @@
           <div class="rating-card">
             <div class="rating-title">${subName}</div>
             <div class="rating-score">${score} <span style="font-size:16px; font-weight:normal; color:var(--text)">баллов</span></div>
-            <div class="rating-label">Общий прогресс</div>
+            <div class="rating-label">Текущий прогресс</div>
           </div>
         `;
       }
@@ -65,13 +56,14 @@
     }
 
     const btn = document.getElementById("theme-btn");
-    const isDark = localStorage.getItem("theme") === "dark";
-    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
+    const isDark = localStorage.getItem("theme") === "dark" || !localStorage.getItem("theme");
+    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☾"; }
+    else { btn.innerHTML = "☀"; }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");
       localStorage.setItem("theme", nowDark ? "dark" : "light");
-      btn.innerHTML = nowDark ? "☀️" : "🌙";
+      btn.innerHTML = nowDark ? "☾" : "☀";
     };
 
     const scrollBtn = document.getElementById("scroll-top");
