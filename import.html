@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Импорт старых вопросов</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: sans-serif; padding: 40px; background: #f3f0e8; color: #1c1e21; }
+    button { padding: 10px 20px; font-size: 18px; cursor: pointer; background: #d95d39; color: white; border: none; border-radius: 5px; }
+    #log { margin-top: 20px; padding: 20px; background: white; border: 1px solid #ccc; border-radius: 5px; height: 300px; overflow-y: scroll; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <h1>Перенос вопросов из data.js в Supabase</h1>
+  <p>Внимание! Убедись, что ты залогинена на сайте как админ, чтобы скрипт сработал.</p>
+  <button id="start-btn">Начать импорт</button>
+  <div id="log">Логи появятся здесь...</div>
+
+  <!-- Подключаем старый файл с вопросами -->
+  <script src="data.js"></script>
+
+  <script>
+    const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Wbus_dDyxCuBBxZrxubw6Q_aQnqMCAM';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const logBox = document.getElementById("log");
+    function log(msg) { logBox.innerHTML += msg + "<br>"; logBox.scrollTop = logBox.scrollHeight; }
+
+    document.getElementById("start-btn").onclick = async () => {
+      // Проверяем, залогинен ли пользователь
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        alert("Ошибка! Сначала зайди на сайт (admin.html) и войди под своим аккаунтом.");
+        return;
+      }
+
+      log("Начинаю импорт...");
+      let successCount = 0;
+
+      // Перебираем все дисциплины из старого файла
+      for (const subId in questions) {
+        const subData = questions[subId];
+        
+        // Собираем тестовые вопросы
+        if (subData.test) {
+          for (const q of subData.test) {
+            const payload = {
+              subject: subId,
+              topic: q.topic || "Разное",
+              question_type: "test",
+              question_text: q.q,
+              options: q.options,
+              correct_answer: q.correct,
+              explanation: q.explain || ""
+            };
+            const { error } = await db.from('questions').insert([payload]);
+            if (error) log(`❌ Ошибка (тест): ${error.message}`);
+            else { successCount++; log(`✅ Добавлен тест: ${q.q.substring(0, 30)}...`); }
+          }
+        }
+
+        // Собираем открытые вопросы
+        if (subData.open) {
+          for (const q of subData.open) {
+            const payload = {
+              subject: subId,
+              topic: q.topic || "Разное",
+              question_type: "open",
+              question_text: q.q,
+              model_answer: q.answer || ""
+            };
+            const { error } = await db.from('questions').insert([payload]);
+            if (error) log(`❌ Ошибка (открытый): ${error.message}`);
+            else { successCount++; log(`✅ Добавлен открытый: ${q.q.substring(0, 30)}...`); }
+          }
+        }
+      }
+
+      log(`<br><b>🎉 ГОТОВО! Успешно перенесено вопросов: ${successCount}</b>`);
+      log("Теперь можешь удалить файл data.js и import.html.");
+    };
+  </script>
+</body>
+</html>
