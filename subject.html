@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Дисциплина | Jelly Test</title>
+  <title>Дисциплина | Rain Test</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -16,12 +17,13 @@
         <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
         <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
+      <div class="logo-title">Rain<span>Test</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
       <a href="tickets.html">Билеты</a>
       <a href="progress.html">Прогресс</a>
+      <a href="admin.html">Админка</a>
     </nav>
   </aside>
 
@@ -44,19 +46,22 @@
       </div>
     </div>
 
-    <main id="content"></main>
+    <main id="content"><p style="padding: 20px;">Загрузка вопросов из базы...</p></main>
   </div>
   <button id="scroll-top">↑</button>
 
-  <script src="data.js"></script>
   <script>
-    const id = new URLSearchParams(location.search).get("id");
-    const subject = subjects.find(s => s.id === id);
-    document.getElementById("title").textContent = subject ? subject.name : "Не найдено";
-    
-    const rawData = questions[id] || {};
-    const data = { test: rawData.test || [], open: rawData.open || [] };
+    const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Wbus_dDyxCuBBxZrxubw6Q_aQnqMCAM';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const subNames = { obshaya: "Общая психология", istoriya: "История психологии", antropologiya: "Антропология", anatomiya: "Анатомия" };
+
+    const id = new URLSearchParams(location.search).get("id");
+    document.getElementById("title").textContent = subNames[id] || "Не найдено";
+    
+    let data = { test: [], open: [] };
     const content = document.getElementById("content");
     const tabTest = document.getElementById("tab-test");
     const tabOpen = document.getElementById("tab-open");
@@ -66,6 +71,21 @@
 
     let currentTab = "test";
 
+    // Загрузка из базы
+    async function loadData() {
+      const { data: rows, error } = await db.from('questions').select('*').eq('subject', id);
+      if (error) { content.innerHTML = `<p class="bad">Ошибка загрузки: ${error.message}</p>`; return; }
+      
+      data.test = rows.filter(r => r.question_type === 'test').map(r => ({
+        id: r.id, topic: r.topic, q: r.question_text, options: r.options, correct: r.correct_answer, explain: r.explanation
+      }));
+      data.open = rows.filter(r => r.question_type === 'open').map(r => ({
+        id: r.id, topic: r.topic, q: r.question_text, answer: r.model_answer
+      }));
+      
+      render();
+    }
+
     function markLearned(qid, type) {
       let learned = JSON.parse(localStorage.getItem("learned") || "{}");
       if (!learned[id]) learned[id] = { test: [], open: [] };
@@ -73,11 +93,6 @@
         learned[id][type].push(qid);
         localStorage.setItem("learned", JSON.stringify(learned));
       }
-    }
-
-    function isLearned(qid, type) {
-      let learned = JSON.parse(localStorage.getItem("learned") || "{}");
-      return learned[id] && learned[id][type] && learned[id][type].includes(qid);
     }
 
     function toggleFav(qid) {
@@ -133,12 +148,12 @@
       const items = getFilteredItems();
       
       if (!items.length) { 
-        content.innerHTML = "<p style='opacity:0.6'>В этой категории пока нет вопросов.</p>"; 
+        content.innerHTML = "<p style='opacity:0.6; padding: 20px;'>В этой категории пока нет вопросов.</p>"; 
         return; 
       }
 
       content.innerHTML = items.map((item, i) => {
-        const uid = item.id || "q_" + i + "_" + Math.random().toString(36).substr(2, 5);
+        const uid = item.id; // Теперь ID берется из базы!
         const favActive = isFav(uid) ? "active" : "";
         const star = `<button class="fav-btn ${favActive}" data-uid="${uid}">★</button>`;
 
@@ -235,15 +250,10 @@
     tabOpen.onclick = () => { currentTab = "open"; tabOpen.classList.add("active"); tabTest.classList.remove("active"); tabFav.classList.remove("active"); render(); };
     tabFav.onclick = () => { currentTab = "fav"; tabFav.classList.add("active"); tabTest.classList.remove("active"); tabOpen.classList.remove("active"); render(); };
 
-    render();
+    loadData();
 
-    // Инициализация темы (починено)
-    const savedTheme = localStorage.getItem("theme");
     const btnTheme = document.getElementById("theme-btn");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark");
-      btnTheme.innerHTML = "☀️";
-    }
+    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btnTheme.innerHTML = "☀️"; }
     btnTheme.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jelly Test</title>
+  <title>Rain Test</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,13 +16,13 @@
         <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
         <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
+      <div class="logo-title">Rain<span>Test</span></div>
     </div>
     <nav>
       <a href="index.html" class="active">Дисциплины</a>
       <a href="tickets.html">Билеты</a>
       <a href="progress.html">Прогресс</a>
-      <a href="#" class="disabled">Заметки (скоро)</a>
+      <a href="admin.html">Админка</a>
     </nav>
   </aside>
 
@@ -37,27 +37,26 @@
   </div>
   <button id="scroll-top">↑</button>
 
-  <script src="data.js"></script>
   <script>
-    const list = document.getElementById("subject-list");
-    const runes = ["☾", "⚶", "🜁", "🜃", "🜄", "🜂"];
+    // Дисциплины прописаны прямо здесь (так как data.js мы больше не используем)
+    const subjects = [
+      { id: "obshaya", name: "Общая психология", icon: "☾" },
+      { id: "istoriya", name: "История психологии", icon: "⚶" },
+      { id: "antropologiya", name: "Антропология", icon: "🜁" },
+      { id: "anatomiya", name: "Анатомия", icon: "🜃" }
+    ];
 
-    subjects.forEach((s, index) => {
+    const list = document.getElementById("subject-list");
+    subjects.forEach(s => {
       const a = document.createElement("a");
       a.className = "card";
       a.href = "subject.html?id=" + s.id;
-      const rune = runes[index % runes.length];
-      a.innerHTML = `<span class="card-icon">${rune}</span><span>${s.name}</span>`;
+      a.innerHTML = `<span class="card-icon">${s.icon}</span><span>${s.name}</span>`;
       list.appendChild(a);
     });
 
-    // Инициализация темы (проверка перед загрузкой, чтобы не мигало)
-    const savedTheme = localStorage.getItem("theme");
     const btn = document.getElementById("theme-btn");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark");
-      btn.innerHTML = "☀️";
-    }
+    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");

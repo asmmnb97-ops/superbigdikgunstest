@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Билеты | Jelly Test</title>
+  <title>Билеты | Rain Test</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -16,12 +17,13 @@
         <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
         <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
+      <div class="logo-title">Rain<span>Test</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
       <a href="tickets.html" class="active">Билеты</a>
       <a href="progress.html">Прогресс</a>
+      <a href="admin.html">Админка</a>
     </nav>
   </aside>
 
@@ -34,37 +36,41 @@
       <div class="controls">
         <select id="ticket-subject">
           <option value="">Выберите дисциплину</option>
+          <option value="anatomiya">Анатомия</option>
+          <option value="obshaya">Общая психология</option>
+          <option value="istoriya">История психологии</option>
+          <option value="antropologiya">Антропология</option>
         </select>
         <input type="number" id="ticket-count" value="3" min="1" max="10" style="width: 80px;" title="Кол-во вопросов">
         <button class="btn-primary" id="gen-ticket">Сгенерировать</button>
       </div>
-
       <div id="ticket-result"></div>
     </main>
   </div>
   <button id="scroll-top">↑</button>
 
-  <script src="data.js"></script>
   <script>
-    const subSelect = document.getElementById("ticket-subject");
-    subjects.forEach(s => {
-      subSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
-    });
+    const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Wbus_dDyxCuBBxZrxubw6Q_aQnqMCAM';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
 
-    document.getElementById("gen-ticket").onclick = () => {
-      const subId = subSelect.value;
+    document.getElementById("gen-ticket").onclick = async () => {
+      const subId = document.getElementById("ticket-subject").value;
       const count = +document.getElementById("ticket-count").value;
       const resultBox = document.getElementById("ticket-result");
 
       if (!subId) { resultBox.innerHTML = "<p class='bad'>Выберите дисциплину!</p>"; return; }
       
-      const subData = questions[subId] || { open: [] };
-      let pool = subData.open || [];
+      resultBox.innerHTML = "<p>Загрузка вопросов из базы...</p>";
       
+      const { data: pool, error } = await db.from('questions').select('*').eq('subject', subId).eq('question_type', 'open');
+      
+      if (error) { resultBox.innerHTML = `<p class='bad'>Ошибка: ${error.message}</p>`; return; }
       if (pool.length === 0) { resultBox.innerHTML = "<p class='bad'>Нет открытых вопросов.</p>"; return; }
 
       const topicsMap = {};
@@ -81,11 +87,7 @@
       let topicIndex = 0;
       
       while (selectedQuestions.length < count && topics.length > 0) {
-        if (topicIndex >= topics.length) {
-          topicIndex = 0;
-          shuffle(topics);
-        }
-        
+        if (topicIndex >= topics.length) { topicIndex = 0; shuffle(topics); }
         const currentTopic = topics[topicIndex];
         const topicQuestions = topicsMap[currentTopic];
         
@@ -94,9 +96,7 @@
           selectedQuestions.push(topicQuestions[randomIndex]);
           topicQuestions.splice(randomIndex, 1);
         }
-        
         topicIndex++;
-        
         if (Object.values(topicsMap).every(arr => arr.length === 0)) break;
       }
 
@@ -105,9 +105,9 @@
         html += `
           <div class="ticket-q">
             <b>${i+1}.</b> <span style="font-size:12px; color:var(--accent); text-transform:uppercase;">[${q.topic || "Разное"}]</span><br>
-            ${q.q}
+            ${q.question_text}
             <div class="ticket-answer" id="ans_${i}">
-              <b>Примерный ответ:</b> ${q.answer || "Нет ответа"}
+              <b>Примерный ответ:</b> ${q.model_answer || "Нет ответа"}
             </div>
           </div>
         `;
@@ -120,19 +120,13 @@
         const answers = document.querySelectorAll(".ticket-answer");
         const btn = document.getElementById("show-answers");
         let isHidden = answers[0].style.display === "none" || answers[0].style.display === "";
-        
         answers.forEach(a => a.style.display = isHidden ? "block" : "none");
         btn.textContent = isHidden ? "Скрыть ответы" : "Показать ответы";
       };
     };
 
-    // Инициализация темы (починено)
-    const savedTheme = localStorage.getItem("theme");
     const btn = document.getElementById("theme-btn");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark");
-      btn.innerHTML = "☀️";
-    }
+    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");

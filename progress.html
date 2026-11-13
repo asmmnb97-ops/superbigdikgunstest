@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Прогресс | Jelly Test</title>
+  <title>Прогресс | Rain Test</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <aside class="sidebar">
@@ -16,12 +17,13 @@
         <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
         <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
+      <div class="logo-title">Rain<span>Test</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
       <a href="tickets.html">Билеты</a>
       <a href="progress.html" class="active">Прогресс</a>
+      <a href="admin.html">Админка</a>
     </nav>
   </aside>
 
@@ -30,54 +32,61 @@
       <h1>Ваш прогресс</h1>
       <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
-    <main id="progress-content" class="progress-container"></main>
+    <main id="progress-content" class="progress-container"><p>Загрузка данных...</p></main>
   </div>
   <button id="scroll-top">↑</button>
 
-  <script src="data.js"></script>
   <script>
-    const content = document.getElementById("progress-content");
+    const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Wbus_dDyxCuBBxZrxubw6Q_aQnqMCAM';
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const subNames = { obshaya: "Общая психология", istoriya: "История психологии", antropologiya: "Антропология", anatomiya: "Анатомия" };
     const learned = JSON.parse(localStorage.getItem("learned") || "{}");
-    
-    let html = "";
-    subjects.forEach(sub => {
-      const subData = questions[sub.id] || { test: [], open: [] };
-      const totalTest = subData.test ? subData.test.length : 0;
-      const totalOpen = subData.open ? subData.open.length : 0;
-      const total = totalTest + totalOpen;
 
-      if (total === 0) return;
-
-      const learnedData = learned[sub.id] || { test: [], open: [] };
-      const learnedTest = learnedData.test ? learnedData.test.length : 0;
-      const learnedOpen = learnedData.open ? learnedData.open.length : 0;
+    async function loadProgress() {
+      const content = document.getElementById("progress-content");
       
-      const percent = total > 0 ? Math.round(((learnedTest + learnedOpen) / total) * 100) : 0;
+      // Получаем ВСЕ вопросы из базы
+      const { data: rows, error } = await db.from('questions').select('subject, question_type');
+      if (error) { content.innerHTML = `<p class="bad">Ошибка: ${error.message}</p>`; return; }
+      
+      let html = "";
+      for (const [subId, subName] of Object.entries(subNames)) {
+        const subData = rows.filter(r => r.subject === subId);
+        const totalTest = subData.filter(r => r.question_type === 'test').length;
+        const totalOpen = subData.filter(r => r.question_type === 'open').length;
+        const total = totalTest + totalOpen;
 
-      html += `
-        <div class="progress-card">
-          <div class="progress-title">${sub.name}</div>
-          <div class="progress-text">
-            <span>Изучено: ${learnedTest + learnedOpen} из ${total} (${percent}%)</span>
-            <span>Тесты: ${learnedTest}/${totalTest} | Открытые: ${learnedOpen}/${totalOpen}</span>
+        if (total === 0) continue;
+
+        const learnedData = learned[subId] || { test: [], open: [] };
+        const learnedTest = learnedData.test ? learnedData.test.length : 0;
+        const learnedOpen = learnedData.open ? learnedData.open.length : 0;
+        const percent = total > 0 ? Math.round(((learnedTest + learnedOpen) / total) * 100) : 0;
+
+        html += `
+          <div class="progress-card">
+            <div class="progress-title">${subName}</div>
+            <div class="progress-text">
+              <span>Изучено: ${learnedTest + learnedOpen} из ${total} (${percent}%)</span>
+              <span>Тесты: ${learnedTest}/${totalTest} | Открытые: ${learnedOpen}/${totalOpen}</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${percent}%"></div>
+            </div>
           </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: ${percent}%"></div>
-          </div>
-        </div>
-      `;
-    });
+        `;
+      }
 
-    if (!html) content.innerHTML = "<p>Нет данных для отображения.</p>";
-    else content.innerHTML = html;
-
-    // Инициализация темы (починено)
-    const savedTheme = localStorage.getItem("theme");
-    const btn = document.getElementById("theme-btn");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark");
-      btn.innerHTML = "☀️";
+      content.innerHTML = html || "<p>Нет данных для отображения.</p>";
     }
+
+    loadProgress();
+
+    const btn = document.getElementById("theme-btn");
+    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");
