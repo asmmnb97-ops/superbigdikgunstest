@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Мой прогресс</title>
+  <title>Прогресс | Jelly Test</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <svg class="medusa-svg" viewBox="0 0 100 100">
-        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
-        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
-        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
-        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
+      <svg class="medusa-svg-small" viewBox="0 0 100 100">
+        <path class="medusa-head" d="M 20 48 C 20 18, 80 18, 80 48 C 65 54, 35 54, 20 48 Z" />
+        <path class="medusa-tentacle" d="M 32 51 Q 26 68, 34 86" />
+        <path class="medusa-tentacle" d="M 44 53 Q 40 72, 46 92" />
+        <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
+        <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Neural<span>Drift</span></div>
+      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
@@ -27,6 +28,7 @@
   <div class="main-content">
     <header>
       <h1>Ваш прогресс</h1>
+      <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
     <main id="progress-content" class="progress-container"></main>
   </div>
@@ -44,7 +46,7 @@
       const totalOpen = subData.open ? subData.open.length : 0;
       const total = totalTest + totalOpen;
 
-      if (total === 0) return; // Пропускаем пустые дисциплины
+      if (total === 0) return;
 
       const learnedData = learned[sub.id] || { test: [], open: [] };
       const learnedTest = learnedData.test ? learnedData.test.length : 0;
@@ -68,6 +70,20 @@
 
     if (!html) content.innerHTML = "<p>Нет данных для отображения.</p>";
     else content.innerHTML = html;
+
+    // Инициализация темы (починено)
+    const savedTheme = localStorage.getItem("theme");
+    const btn = document.getElementById("theme-btn");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+      btn.innerHTML = "☀️";
+    }
+    btn.onclick = () => {
+      document.body.classList.toggle("dark");
+      const nowDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", nowDark ? "dark" : "light");
+      btn.innerHTML = nowDark ? "☀️" : "🌙";
+    };
 
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";

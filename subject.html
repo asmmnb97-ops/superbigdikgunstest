@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Дисциплина</title>
+  <title>Дисциплина | Jelly Test</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <svg class="medusa-svg" viewBox="0 0 100 100">
-        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
-        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
-        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
-        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
+      <svg class="medusa-svg-small" viewBox="0 0 100 100">
+        <path class="medusa-head" d="M 20 48 C 20 18, 80 18, 80 48 C 65 54, 35 54, 20 48 Z" />
+        <path class="medusa-tentacle" d="M 32 51 Q 26 68, 34 86" />
+        <path class="medusa-tentacle" d="M 44 53 Q 40 72, 46 92" />
+        <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
+        <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Neural<span>Drift</span></div>
+      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
@@ -28,6 +29,7 @@
     <header>
       <a href="index.html" class="back-link">← Назад</a>
       <h1 id="title"></h1>
+      <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
 
     <div class="controls">
@@ -64,7 +66,6 @@
 
     let currentTab = "test";
 
-    // --- Управление прогрессом (изученные вопросы) ---
     function markLearned(qid, type) {
       let learned = JSON.parse(localStorage.getItem("learned") || "{}");
       if (!learned[id]) learned[id] = { test: [], open: [] };
@@ -73,12 +74,12 @@
         localStorage.setItem("learned", JSON.stringify(learned));
       }
     }
+
     function isLearned(qid, type) {
       let learned = JSON.parse(localStorage.getItem("learned") || "{}");
       return learned[id] && learned[id][type] && learned[id][type].includes(qid);
     }
 
-    // --- Избранное ---
     function toggleFav(qid) {
       let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
       if (favs.includes(qid)) favs = favs.filter(f => f !== qid);
@@ -102,7 +103,7 @@
       let source = [];
       if (currentTab === "test") source = data.test;
       else if (currentTab === "open") source = data.open;
-      else source = [...data.test, ...data.open].filter(item => isFav(item.id)); // Только избранные
+      else source = [...data.test, ...data.open].filter(item => isFav(item.id));
 
       const topic = topicFilter.value;
       const query = searchInput.value.toLowerCase().trim();
@@ -115,7 +116,6 @@
       });
     }
 
-    // Логика оценок открытых
     function updateScore(points, questionId) {
       let scores = JSON.parse(localStorage.getItem("scores") || "{}");
       let history = JSON.parse(localStorage.getItem("score_history") || "{}");
@@ -174,7 +174,6 @@
         }
       }).join("");
 
-      // Слушатели для звездочек
       document.querySelectorAll(".fav-btn").forEach(btn => {
         btn.onclick = () => {
           const uid = btn.dataset.uid;
@@ -183,7 +182,6 @@
         };
       });
 
-      // Слушатели для проверки тестов
       document.querySelectorAll(".check-one").forEach(btn => {
         btn.onclick = () => {
           const uid = btn.dataset.uid;
@@ -196,7 +194,7 @@
           const ok = +chosen.value === item.correct;
           if (ok) { 
             updateScore(1, uid); 
-            markLearned(uid, "test"); // Отмечаем как изученное
+            markLearned(uid, "test");
           }
           
           fb.innerHTML = `
@@ -206,7 +204,6 @@
         };
       });
 
-      // Слушатели для открытых
       document.querySelectorAll(".show-answer").forEach(btn => {
         btn.onclick = () => {
           const uid = btn.dataset.uid;
@@ -221,7 +218,7 @@
           const uid = btn.dataset.uid;
           const val = +btn.dataset.val;
           updateScore(val, uid); 
-          markLearned(uid, "open"); // Отмечаем как изученное
+          markLearned(uid, "open");
           
           const parent = document.getElementById("grades_" + uid);
           parent.querySelectorAll(".grade-btn").forEach(b => b.classList.remove("active"));
@@ -239,6 +236,20 @@
     tabFav.onclick = () => { currentTab = "fav"; tabFav.classList.add("active"); tabTest.classList.remove("active"); tabOpen.classList.remove("active"); render(); };
 
     render();
+
+    // Инициализация темы (починено)
+    const savedTheme = localStorage.getItem("theme");
+    const btnTheme = document.getElementById("theme-btn");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+      btnTheme.innerHTML = "☀️";
+    }
+    btnTheme.onclick = () => {
+      document.body.classList.toggle("dark");
+      const nowDark = document.body.classList.contains("dark");
+      localStorage.setItem("theme", nowDark ? "dark" : "light");
+      btnTheme.innerHTML = nowDark ? "☀️" : "🌙";
+    };
 
     const scrollBtn = document.getElementById("scroll-top");
     window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";

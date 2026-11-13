@@ -9,13 +9,14 @@
 <body>
   <aside class="sidebar">
     <div class="logo-box">
-      <svg class="medusa-svg" viewBox="0 0 100 100">
-        <path d="M20 50 Q20 20 50 20 Q80 20 80 50" class="medusa-head"/>
-        <path d="M30 50 Q25 70 35 90" class="medusa-tentacle"/>
-        <path d="M50 50 Q45 80 55 95" class="medusa-tentacle"/>
-        <path d="M70 50 Q75 70 65 90" class="medusa-tentacle"/>
+      <svg class="medusa-svg-small" viewBox="0 0 100 100">
+        <path class="medusa-head" d="M 20 48 C 20 18, 80 18, 80 48 C 65 54, 35 54, 20 48 Z" />
+        <path class="medusa-tentacle" d="M 32 51 Q 26 68, 34 86" />
+        <path class="medusa-tentacle" d="M 44 53 Q 40 72, 46 92" />
+        <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
+        <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
       </svg>
-      <div class="logo-title">Jelly<span>Test</span></div>
+      <div class="logo-title">Jelly Test<span>RETRO LAB</span></div>
     </div>
     <nav>
       <a href="index.html">Дисциплины</a>
@@ -50,7 +51,6 @@
       subSelect.innerHTML += `<option value="${s.id}">${s.name}</option>`;
     });
 
-    // Функция перемешивания
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
     }
@@ -67,7 +67,6 @@
       
       if (pool.length === 0) { resultBox.innerHTML = "<p class='bad'>Нет открытых вопросов.</p>"; return; }
 
-      // ГРУППИРОВКА ПО ТЕМАМ (чтобы были вопросы из разных тем)
       const topicsMap = {};
       pool.forEach(q => {
         const t = q.topic || "Разное";
@@ -78,34 +77,29 @@
       const topics = Object.keys(topicsMap);
       const selectedQuestions = [];
       
-      // Берем по одному вопросу из каждой темы, пока не наберем нужное количество
-      shuffle(topics); // Перемешиваем темы
+      shuffle(topics);
       let topicIndex = 0;
       
       while (selectedQuestions.length < count && topics.length > 0) {
-        // Если темы закончились, но нужно больше вопросов, начинаем заново
         if (topicIndex >= topics.length) {
           topicIndex = 0;
-          shuffle(topics); // Перемешиваем заново, чтобы не было повторов
+          shuffle(topics);
         }
         
         const currentTopic = topics[topicIndex];
         const topicQuestions = topicsMap[currentTopic];
         
         if (topicQuestions.length > 0) {
-          // Берем случайный вопрос из этой темы
           const randomIndex = Math.floor(Math.random() * topicQuestions.length);
           selectedQuestions.push(topicQuestions[randomIndex]);
-          topicQuestions.splice(randomIndex, 1); // Удаляем, чтобы не повторялся
+          topicQuestions.splice(randomIndex, 1);
         }
         
         topicIndex++;
         
-        // Если все темы опустели, выходим
         if (Object.values(topicsMap).every(arr => arr.length === 0)) break;
       }
 
-      // Формируем HTML
       let html = `<div class="ticket-card"><h3>Ваш билет (${selectedQuestions.length} вопр.)</h3>`;
       selectedQuestions.forEach((q, i) => {
         html += `
@@ -122,7 +116,6 @@
       
       resultBox.innerHTML = html;
 
-      // Логика показа ответов
       document.getElementById("show-answers").onclick = () => {
         const answers = document.querySelectorAll(".ticket-answer");
         const btn = document.getElementById("show-answers");
@@ -133,10 +126,13 @@
       };
     };
 
-    // Кнопка темы
+    // Инициализация темы (починено)
+    const savedTheme = localStorage.getItem("theme");
     const btn = document.getElementById("theme-btn");
-    const isDark = localStorage.getItem("theme") === "dark";
-    if (isDark) { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+      btn.innerHTML = "☀️";
+    }
     btn.onclick = () => {
       document.body.classList.toggle("dark");
       const nowDark = document.body.classList.contains("dark");
