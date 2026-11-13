@@ -59,12 +59,14 @@
             <input type="text" id="opt0" placeholder="Вариант А" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
             <input type="text" id="opt1" placeholder="Вариант Б" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
             <input type="text" id="opt2" placeholder="Вариант В" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+            <input type="text" id="opt3" placeholder="Вариант Г" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
             
             <label style="display: block; margin-bottom: 10px; font-weight: bold;">Правильный ответ:</label>
             <select id="correct" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
               <option value="0">Вариант А</option>
               <option value="1">Вариант Б</option>
               <option value="2">Вариант В</option>
+              <option value="3">Вариант Г</option>
             </select>
 
             <textarea id="explain" placeholder="Пояснение к ответу" rows="2" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
@@ -136,7 +138,8 @@
         payload.options = [
           document.getElementById("opt0").value,
           document.getElementById("opt1").value,
-          document.getElementById("opt2").value
+          document.getElementById("opt2").value,
+          document.getElementById("opt3").value
         ];
         payload.correct_answer = parseInt(document.getElementById("correct").value);
         payload.explanation = document.getElementById("explain").value;
@@ -156,6 +159,7 @@
         document.getElementById("opt0").value = "";
         document.getElementById("opt1").value = "";
         document.getElementById("opt2").value = "";
+        document.getElementById("opt3").value = "";
         document.getElementById("explain").value = "";
         document.getElementById("model-answer").value = "";
       }

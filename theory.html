@@ -30,20 +30,22 @@
 
   <div class="main-content">
     <header>
-      <h1>Теория и конспекты</h1>
+      <h1 id="th-header">Теория</h1>
       <button class="theme-btn" id="theme-btn">🌙</button>
     </header>
 
+    <!-- Блок для админа -->
     <div id="admin-theory-box" style="display: none; margin-bottom: 30px;">
       <div class="question">
-        <h3>Добавить теорию</h3>
-        <input type="text" id="th-title" placeholder="Заголовок" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-        <textarea id="th-content" placeholder="Текст теории (можно вставлять картинки через HTML: <img src='...'>)" rows="5" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
+        <h3 id="form-title">Добавить теорию</h3>
+        <select id="th-subject" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></select>
+        <input type="text" id="th-title" placeholder="Заголовок темы" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
+        <textarea id="th-content" placeholder="Текст теории (можно вставлять HTML-картинки: <img src='...'>)" rows="5" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
         <button class="btn-primary" onclick="saveTheory()">Сохранить</button>
       </div>
     </div>
 
-    <main id="theory-list"><p>Загрузка...</p></main>
+    <div id="content-area" class="grid"></div>
   </div>
   <button id="scroll-top">↑</button>
 
@@ -54,36 +56,85 @@
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let isAdmin = false;
+    let subjList = [];
+    const contentArea = document.getElementById("content-area");
+    const thHeader = document.getElementById("th-header");
     const adminBox = document.getElementById("admin-theory-box");
+    const subjSelect = document.getElementById("th-subject");
 
+    // Проверка на админа
     db.auth.getSession().then(({ data: { session } }) => {
       if (session) { isAdmin = true; adminBox.style.display = "block"; }
     });
 
-    async function loadTheory() {
-      const { data, error } = await db.from('theory').select('*').order('id', { ascending: false });
-      const list = document.getElementById("theory-list");
-      if (error) { list.innerHTML = `<p class="bad">Ошибка: ${error.message}. Возможно, таблица не создана!</p>`; return; }
-      
-      if (!data.length) { list.innerHTML = "<p>Пока нет добавленной теории.</p>"; return; }
-      
-      list.innerHTML = data.map(t => `
-        <div class="question">
-          <h2>${t.title}</h2>
-          <div>${t.content}</div>
-        </div>
+    // Загрузка списка дисциплин
+    async function loadSubjects() {
+      const { data } = await db.from('subjects').select('*').order('name');
+      subjList = data || [];
+      subjSelect.innerHTML = subjList.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
+      showSubjects();
+    }
+
+    // Показ дисциплин
+    function showSubjects() {
+      thHeader.textContent = "Выберите дисциплину";
+      contentArea.innerHTML = subjList.map(s => `
+        <a href="#" class="card" onclick="showThemes('${s.id}', '${s.name}'); return false;">
+          <span>${s.name}</span>
+        </a>
       `).join("");
     }
 
+    // Показ тем внутри дисциплины
+    async function showThemes(subId, subName) {
+      thHeader.textContent = subName;
+      contentArea.innerHTML = "<p>Загрузка тем...</p>";
+      
+      const { data } = await db.from('theory').select('*').eq('subject', subId).order('id', { ascending: false });
+      
+      if (!data || !data.length) {
+        contentArea.innerHTML = `<p>По этой дисциплине пока нет теории.</p> <button class="btn-primary" onclick="showSubjects()">Назад к дисциплинам</button>`;
+        return;
+      }
+
+      let html = `<div style="grid-column: 1/-1; margin-bottom: 20px;"><button class="btn-primary" onclick="showSubjects()">← Назад к дисциплинам</button></div>`;
+      data.forEach(t => {
+        html += `
+          <div class="question" style="grid-column: 1/-1;">
+            <h2>${t.title}</h2>
+            <div style="margin-top: 15px;">${t.content}</div>
+            ${isAdmin ? `<button class="btn-primary" style="margin-top:15px; background:var(--bad); border-color:var(--bad);" onclick="deleteTheory(${t.id}, '${subId}', '${subName}')">Удалить</button>` : ""}
+          </div>
+        `;
+      });
+      contentArea.innerHTML = html;
+    }
+
+    // Сохранение теории
     window.saveTheory = async () => {
+      const subject = subjSelect.value;
       const title = document.getElementById("th-title").value;
       const content = document.getElementById("th-content").value;
-      const { error } = await db.from('theory').insert([{ title, content }]);
+      
+      if (!title || !content) { alert("Заполните заголовок и текст!"); return; }
+
+      const { error } = await db.from('theory').insert([{ subject, title, content }]);
       if (error) alert("Ошибка: " + error.message);
-      else { document.getElementById("th-title").value = ""; document.getElementById("th-content").value = ""; loadTheory(); }
+      else { 
+        document.getElementById("th-title").value = ""; 
+        document.getElementById("th-content").value = ""; 
+        alert("Теория добавлена! Перейдите в дисциплину, чтобы увидеть."); 
+      }
     };
 
-    loadTheory();
+    // Удаление теории
+    window.deleteTheory = async (id, subId, subName) => {
+      if(!confirm("Удалить эту тему?")) return;
+      await db.from('theory').delete().eq('id', id);
+      showThemes(subId, subName);
+    };
+
+    loadSubjects();
 
     const btn = document.getElementById("theme-btn");
     if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
