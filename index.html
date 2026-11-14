@@ -3,56 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rain Test — Конспект-тренажер</title>
+  <title>Rain Test — Тренажер</title>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <a href="index.html" class="logo">
-      <div class="logo-frame">
-        <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-          <line x1="10" y1="3" x2="9" y2="7" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="16" y1="2" x2="15" y2="6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
-          <line x1="22" y1="4" x2="21" y2="8" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
-          <path d="M16 25C10.5 25 7.5 21 8.5 16.5C12 17.5 15 20 16 25Z" fill="var(--lotus-leaf)"/>
-          <path d="M16 25C21.5 25 24.5 21 23.5 16.5C20 17.5 17 20 16 25Z" fill="var(--lotus-leaf)"/>
-        </svg>
-      </div>
+      <div class="logo-box">🌧️</div>
       <span>Rain Test</span>
     </a>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab active">Предметы</a>
+      <a href="theory.html" class="nav-tab">Теория</a>
+      <a href="tickets.html" class="nav-tab">Билеты</a>
+      <a href="progress.html" class="nav-tab">Прогресс</a>
+    </div>
     <div class="controls">
-      <button class="icon-btn" onclick="window.location.href='theory.html'">📖 <span class="btn-label">Теория</span></button>
-      <button class="icon-btn" onclick="window.location.href='tickets.html'">🎫 <span class="btn-label">Билеты</span></button>
-      <button class="icon-btn" onclick="window.location.href='progress.html'">📊 <span class="btn-label">Прогресс</span></button>
-      <button class="icon-btn" onclick="window.location.href='admin.html'">⚙️ <span class="btn-label">Панель</span></button>
+      <a href="admin.html" class="icon-btn">⚙️</a>
       <button class="icon-btn" id="themeToggle"><span id="themeIcon">🌙</span></button>
     </div>
   </header>
 
   <main>
-    <div class="grid">
-      <a href="subject.html?id=obshaya" class="card"><span class="card-icon">☾</span><span>Общая психология</span></a>
-      <a href="subject.html?id=istoriya" class="card"><span class="card-icon">⚶</span><span>История психологии</span></a>
-      <a href="subject.html?id=antropologiya" class="card"><span class="card-icon">🜁</span><span>Антропология</span></a>
-      <a href="subject.html?id=anatomiya" class="card"><span class="card-icon">🜃</span><span>Анатомия</span></a>
+    <h1 class="section-title">Выберите дисциплину</h1>
+    <p class="section-subtitle">Начни подготовку к коллоквиуму или экзамену</p>
+    
+    <div class="subjects-grid">
+      <a href="subject.html?id=obshaya" class="subject-card">
+        <span class="subject-icon">☾</span>
+        <div class="subject-name">Общая психология</div>
+        <div class="subject-meta">Теория и практика</div>
+      </a>
+      <a href="subject.html?id=istoriya" class="subject-card">
+        <span class="subject-icon">⚶</span>
+        <div class="subject-name">История психологии</div>
+        <div class="subject-meta">Этапы развития науки</div>
+      </a>
+      <a href="subject.html?id=antropologiya" class="subject-card">
+        <span class="subject-icon">🜁</span>
+        <div class="subject-name">Антропология</div>
+        <div class="subject-meta">Человек и культура</div>
+      </a>
+      <a href="subject.html?id=anatomiya" class="subject-card">
+        <span class="subject-icon">🜃</span>
+        <div class="subject-name">Анатомия</div>
+        <div class="subject-meta">Строение тела</div>
+      </a>
     </div>
   </main>
-
-  <footer class="gauge-footer">
-    <div class="gauge-container">
-      <div class="gauge-header"><span>Уровень прогресса</span><span>Шкала дождемера</span></div>
-      <div class="gauge-ruler"><div class="gauge-water" style="width: 35%;"></div></div>
-    </div>
-  </footer>
 
   <script>
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
-    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeIcon.textContent = '☀️'; }
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '☀️';
+    }
     themeToggle.onclick = () => {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
-      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        themeIcon.textContent = '🌙';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        themeIcon.textContent = '☀️';
+      }
     };
   </script>
 </body>

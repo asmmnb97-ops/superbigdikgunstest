@@ -2,39 +2,29 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Прогресс | Rain Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="logo-box">
-      <svg class="medusa-svg-small" viewBox="0 0 100 100">
-        <path class="medusa-head" d="M 20 48 C 20 18, 80 18, 80 48 C 65 54, 35 54, 20 48 Z" />
-        <path class="medusa-tentacle" d="M 32 51 Q 26 68, 34 86" />
-        <path class="medusa-tentacle" d="M 44 53 Q 40 72, 46 92" />
-        <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
-        <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
-      </svg>
-      <div class="logo-title">Rain<span>Test</span></div>
+  <header>
+    <a href="index.html" class="logo"><div class="logo-box">🌧️</div><span>Rain Test</span></a>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">Предметы</a>
+      <a href="theory.html" class="nav-tab">Теория</a>
+      <a href="tickets.html" class="nav-tab">Билеты</a>
+      <a href="progress.html" class="nav-tab active">Прогресс</a>
     </div>
-    <nav>
-      <a href="index.html">Дисциплины</a>
-      <a href="tickets.html">Билеты</a>
-      <a href="progress.html" class="active">Прогресс</a>
-      <a href="admin.html">Админка</a>
-    </nav>
-  </aside>
+    <div class="controls"><a href="admin.html" class="icon-btn">⚙️</a><button class="icon-btn" id="themeToggle"><span id="themeIcon">🌙</span></button></div>
+  </header>
 
-  <div class="main-content">
-    <header>
-      <h1>Ваш прогресс</h1>
-      <button class="theme-btn" id="theme-btn">🌙</button>
-    </header>
-    <main id="progress-content" class="progress-container"><p>Загрузка данных...</p></main>
-  </div>
-  <button id="scroll-top">↑</button>
+  <main>
+    <h1 class="section-title">Ваш прогресс</h1>
+    <p class="section-subtitle">Отслеживайте изученные темы</p>
+    <div id="progress-content" style="display: flex; flex-direction: column; gap: 16px;"></div>
+  </main>
 
   <script>
     const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
@@ -47,10 +37,8 @@
 
     async function loadProgress() {
       const content = document.getElementById("progress-content");
-      
-      // Получаем ВСЕ вопросы из базы
       const { data: rows, error } = await db.from('questions').select('subject, question_type');
-      if (error) { content.innerHTML = `<p class="bad">Ошибка: ${error.message}</p>`; return; }
+      if (error) { content.innerHTML = `<p style="color:var(--error)">Ошибка: ${error.message}</p>`; return; }
       
       let html = "";
       for (const [subId, subName] of Object.entries(subNames)) {
@@ -58,7 +46,6 @@
         const totalTest = subData.filter(r => r.question_type === 'test').length;
         const totalOpen = subData.filter(r => r.question_type === 'open').length;
         const total = totalTest + totalOpen;
-
         if (total === 0) continue;
 
         const learnedData = learned[subId] || { test: [], open: [] };
@@ -67,36 +54,33 @@
         const percent = total > 0 ? Math.round(((learnedTest + learnedOpen) / total) * 100) : 0;
 
         html += `
-          <div class="progress-card">
-            <div class="progress-title">${subName}</div>
-            <div class="progress-text">
-              <span>Изучено: ${learnedTest + learnedOpen} из ${total} (${percent}%)</span>
-              <span>Тесты: ${learnedTest}/${totalTest} | Открытые: ${learnedOpen}/${totalOpen}</span>
+          <div class="quiz-card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <h3 style="font-family: 'Manrope';">${subName}</h3>
+              <span style="font-weight: 600; color: var(--accent);">${percent}%</span>
             </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" style="width: ${percent}%"></div>
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+              Изучено: ${learnedTest + learnedOpen} из ${total} (Тесты: ${learnedTest}/${totalTest} | Открытые: ${learnedOpen}/${totalOpen})
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: ${percent}%;"></div>
             </div>
           </div>
         `;
       }
-
-      content.innerHTML = html || "<p>Нет данных для отображения.</p>";
+      content.innerHTML = html || "<p>Нет данных.</p>";
     }
 
     loadProgress();
 
-    const btn = document.getElementById("theme-btn");
-    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
-    btn.onclick = () => {
-      document.body.classList.toggle("dark");
-      const nowDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", nowDark ? "dark" : "light");
-      btn.innerHTML = nowDark ? "☀️" : "🌙";
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeIcon.textContent = '☀️'; }
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
+      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
     };
-
-    const scrollBtn = document.getElementById("scroll-top");
-    window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
-    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   </script>
 </body>
 </html>

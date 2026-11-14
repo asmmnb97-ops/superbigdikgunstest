@@ -10,24 +10,32 @@
 </head>
 <body>
   <header>
-    <a href="index.html" class="logo"><div class="logo-icon"></div><span>Rain Test</span></a>
+    <a href="index.html" class="logo"><div class="logo-box">🌧️</div><span>Rain Test</span></a>
+    <div class="nav-tabs">
+      <a href="index.html" class="nav-tab">Предметы</a>
+      <a href="theory.html" class="nav-tab">Теория</a>
+      <a href="tickets.html" class="nav-tab">Билеты</a>
+      <a href="progress.html" class="nav-tab">Прогресс</a>
+    </div>
     <div class="controls"><button class="icon-btn" id="themeToggle"><span id="themeIcon">🌙</span></button></div>
   </header>
 
   <main>
-    <div id="login-box" class="quiz-card" style="max-width: 400px; margin: 0 auto;">
-      <h2 style="margin-bottom: 20px;">Вход для админа</h2>
-      <input type="email" id="email" placeholder="Email" style="margin-bottom: 10px;">
-      <input type="password" id="password" placeholder="Пароль" style="margin-bottom: 20px;">
+    <div id="login-box" class="quiz-card" style="max-width: 400px; margin: 40px auto;">
+      <h2 style="margin-bottom: 20px; text-align: center;">Вход для админа</h2>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Пароль">
       <button class="btn-primary" id="login-btn" style="width: 100%;">Войти</button>
       <p id="auth-msg" style="color: var(--error); margin-top: 10px; text-align: center;"></p>
     </div>
 
     <div id="panel-box" style="display: none; text-align: center;">
-      <h2 style="margin-bottom: 20px;">Вы вошли как Админ</h2>
-      <p style="color: var(--text-secondary); margin-bottom: 20px;">Теперь вы можете добавлять и редактировать вопросы прямо на страницах дисциплин.</p>
-      <button class="btn-primary" onclick="window.location.href='index.html'">Перейти к дисциплинам</button>
-      <button class="btn-secondary" id="logout-btn" style="margin-left: 10px;">Выйти</button>
+      <div class="quiz-card" style="max-width: 500px; margin: 40px auto;">
+        <h2 style="margin-bottom: 10px;">Вы вошли как Админ</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 20px;">Теперь вы можете добавлять и редактировать вопросы прямо на страницах дисциплин.</p>
+        <button class="btn-primary" onclick="window.location.href='index.html'">Перейти к предметам</button>
+        <button class="btn-secondary" id="logout-btn" style="margin-left: 10px;">Выйти</button>
+      </div>
     </div>
   </main>
 
