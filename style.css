@@ -1,37 +1,45 @@
 :root {
-  --bg-main: #F1F5F9;
+  --bg-main: #F6F4FA;
   --bg-card: #FFFFFF;
-  --bg-hover: #E8F0F8;
-  --text-primary: #0F172A;
-  --text-secondary: #475569;
-  --border-color: #CBD5E1;
-  --accent: #0284C7;
-  --accent-secondary: #7C3AED;
-  --accent-hover: #0369A1;
-  --accent-soft: rgba(2, 132, 199, 0.1);
+  --bg-hover: #EFEBF7;
+  --text-primary: #1E162B;
+  --text-secondary: #685D7A;
+  --border-color: #E2DCF0;
+  --accent: #7E22CE;
+  --accent-hover: #6B21A8;
+  --accent-soft: rgba(126, 34, 206, 0.1);
+  --lily-outer: #EC4899;
+  --lily-inner: #F472B6;
+  --lily-core: #FBBF24;
+  --lily-leaf: #10B981;
+  --pond-bg: #EBE6F5;
   --success: #059669;
   --success-bg: rgba(5, 150, 105, 0.12);
   --error: #E11D48;
   --error-bg: rgba(225, 29, 72, 0.11);
-  --shadow: 0 10px 28px -6px rgba(15, 23, 42, 0.07);
+  --shadow: 0 12px 30px -8px rgba(30, 22, 43, 0.08);
 }
 
 [data-theme="dark"] {
-  --bg-main: #0B0E14;
-  --bg-card: #131822;
-  --bg-hover: #1C2331;
-  --text-primary: #F8FAFC;
-  --text-secondary: #94A3B8;
-  --border-color: #232D3F;
-  --accent: #38BDF8;
-  --accent-secondary: #A78BFA;
-  --accent-hover: #7DD3FC;
-  --accent-soft: rgba(56, 189, 248, 0.14);
+  --bg-main: #100D18;
+  --bg-card: #191426;
+  --bg-hover: #231C36;
+  --text-primary: #F5F2FA;
+  --text-secondary: #9C91B0;
+  --border-color: #2D2442;
+  --accent: #C084FC;
+  --accent-hover: #D8B4FE;
+  --accent-soft: rgba(192, 132, 252, 0.15);
+  --lily-outer: #F472B6;
+  --lily-inner: #FBCFE8;
+  --lily-core: #FDE047;
+  --lily-leaf: #34D399;
+  --pond-bg: #0A0810;
   --success: #34D399;
   --success-bg: rgba(52, 211, 153, 0.15);
   --error: #FB7185;
   --error-bg: rgba(251, 113, 133, 0.15);
-  --shadow: 0 14px 34px -6px rgba(0, 0, 0, 0.55);
+  --shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.55);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +49,7 @@ body {
   font-family: 'Golos Text', sans-serif;
   background-color: var(--bg-main);
   color: var(--text-primary);
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.35s, color 0.35s;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -53,14 +61,15 @@ header {
 }
 
 .logo {
-  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.3rem;
-  display: flex; align-items: center; gap: 10px; color: var(--text-primary); text-decoration: none;
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.32rem;
+  display: flex; align-items: center; gap: 12px; color: var(--text-primary); cursor: pointer; text-decoration: none;
 }
-.logo-box {
-  width: 40px; height: 40px; border-radius: 12px; background: var(--bg-card);
+.logo-badge {
+  width: 44px; height: 44px; border-radius: 14px; background: var(--bg-card);
   border: 1px solid var(--border-color); display: flex; align-items: center;
-  justify-content: center; box-shadow: var(--shadow);
+  justify-content: center; box-shadow: var(--shadow); transition: 0.25s;
 }
+.logo:hover .logo-badge { transform: rotate(-6deg) scale(1.05); }
 
 .nav-tabs {
   display: flex; background: var(--bg-card); padding: 4px; border-radius: 14px;
@@ -74,52 +83,50 @@ header {
 .nav-tab:hover { color: var(--text-primary); }
 .nav-tab.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
-.controls { display: flex; gap: 8px; }
 .icon-btn {
   background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary);
-  padding: 8px 13px; border-radius: 12px; cursor: pointer; font-family: inherit;
-  font-size: 0.88rem; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: 0.2s;
+  padding: 9px 14px; border-radius: 12px; cursor: pointer; font-family: inherit;
+  font-size: 0.88rem; font-weight: 500; display: flex; align-items: center; gap: 7px; transition: 0.2s;
 }
 .icon-btn:hover { border-color: var(--accent); background: var(--bg-hover); }
-.icon-btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 
 main { max-width: 760px; width: 100%; margin: 10px auto 36px; padding: 0 20px; flex: 1; }
 
 .section-title { font-family: 'Manrope', sans-serif; font-size: 1.5rem; margin-bottom: 6px; }
 .section-subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 22px; }
 
-/* Сетка предметов */
+/* Предметы */
 .subjects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .subject-card {
-  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 18px;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px;
   padding: 22px; box-shadow: var(--shadow); cursor: pointer; transition: 0.2s;
-  text-align: left; text-decoration: none; color: inherit; display: block;
+  text-decoration: none; color: inherit; display: block;
 }
 .subject-card:hover { transform: translateY(-3px); border-color: var(--accent); }
 .subject-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
-.subject-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; color: var(--text-primary); }
+.subject-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; }
 .subject-meta { font-size: 0.85rem; color: var(--text-secondary); }
 
-/* Карточка вопроса */
+/* Карточки вопросов */
 .quiz-card {
-  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 22px;
-  padding: 30px; box-shadow: var(--shadow); margin-bottom: 20px; position: relative;
+  background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 24px;
+  padding: 32px; box-shadow: var(--shadow); margin-bottom: 20px; position: relative;
 }
 .subject-tag {
   display: inline-block; background: var(--accent-soft); color: var(--accent);
-  font-size: 0.8rem; font-weight: 600; padding: 5px 12px; border-radius: 8px; margin-bottom: 16px;
+  font-size: 0.8rem; font-weight: 600; padding: 5px 12px; border-radius: 9px; margin-bottom: 16px;
 }
-.question-text { font-family: 'Manrope', sans-serif; font-size: 1.25rem; line-height: 1.45; margin-bottom: 22px; }
+.question-text { font-family: 'Manrope', sans-serif; font-size: 1.26rem; line-height: 1.45; margin-bottom: 24px; }
 
 .options-list { display: flex; flex-direction: column; gap: 12px; }
 .option-btn {
   width: 100%; text-align: left; background: transparent; border: 1.5px solid var(--border-color);
-  color: var(--text-primary); padding: 15px 18px; border-radius: 14px; font-family: inherit;
+  color: var(--text-primary); padding: 15px 18px; border-radius: 15px; font-family: inherit;
   font-size: 0.98rem; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: 0.2s;
 }
 .option-btn:hover:not(:disabled) { background: var(--bg-hover); border-color: var(--accent); }
 .option-letter {
-  width: 28px; height: 28px; border-radius: 8px; background: var(--bg-main);
+  width: 28px; height: 28px; border-radius: 9px; background: var(--bg-main);
   display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem;
   color: var(--text-secondary); flex-shrink: 0;
 }
@@ -149,7 +156,7 @@ textarea:focus, input:focus, select:focus { border-color: var(--accent); }
   border-radius: 12px; font-family: inherit; font-size: 0.95rem; font-weight: 600;
   cursor: pointer; transition: 0.2s;
 }
-[data-theme="dark"] .btn-primary { color: #0B0E14; }
+[data-theme="dark"] .btn-primary { color: #100D18; }
 .btn-primary:hover { background: var(--accent-hover); }
 
 .btn-secondary {
@@ -167,6 +174,20 @@ textarea:focus, input:focus, select:focus { border-color: var(--accent); }
 }
 .mini-btn:hover { background: var(--bg-hover); }
 .mini-btn.delete { color: var(--error); }
+
+/* Прогресс */
+.progress-wrapper { margin-bottom: 20px; }
+.progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; }
+.progress-track { width: 100%; height: 8px; background: var(--border-color); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--lily-leaf), var(--accent)); border-radius: 99px; transition: 0.4s; }
+
+/* Лилия внизу */
+.lily-pond {
+  width: 100%; height: 120px; background: var(--pond-bg);
+  display: flex; justify-content: center; align-items: flex-end;
+  overflow: hidden; position: relative; transition: background 0.35s;
+}
+.lily-pond svg { width: 100%; height: 100%; object-fit: cover; }
 
 @media (max-width: 600px) {
   .nav-tabs { width: 100%; justify-content: center; }

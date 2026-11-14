@@ -10,7 +10,7 @@
 <body>
   <header>
     <a href="index.html" class="logo">
-      <div class="logo-box">🌧️</div>
+      <div class="logo-badge">🪷</div>
       <span>Rain Test</span>
     </a>
     <div class="nav-tabs">
@@ -52,6 +52,28 @@
       </a>
     </div>
   </main>
+
+  <!-- Озеро с лилиями внизу -->
+  <div class="lily-pond">
+    <svg viewBox="0 0 800 120" preserveAspectRatio="none">
+      <path d="M0,120 Q100,80 200,110 T400,100 T600,115 T800,100 L800,120 Z" fill="var(--lily-leaf)" opacity="0.3"/>
+      <path d="M0,120 Q150,60 300,110 T600,100 T800,110 L800,120 Z" fill="var(--lily-leaf)" opacity="0.5"/>
+      <!-- Лилия 1 -->
+      <g transform="translate(150, 70)">
+        <path d="M0,0 C-15,-20 -20,-40 0,-50 C20,-40 15,-20 0,0" fill="var(--lily-outer)"/>
+        <path d="M0,0 C-10,-15 -10,-30 0,-40 C10,-30 10,-15 0,0" fill="var(--lily-inner)"/>
+        <circle cx="0" cy="-10" r="5" fill="var(--lily-core)"/>
+        <ellipse cx="0" cy="10" rx="40" ry="10" fill="var(--lily-leaf)"/>
+      </g>
+      <!-- Лилия 2 -->
+      <g transform="translate(600, 80) scale(0.8)">
+        <path d="M0,0 C-15,-20 -20,-40 0,-50 C20,-40 15,-20 0,0" fill="var(--lily-outer)"/>
+        <path d="M0,0 C-10,-15 -10,-30 0,-40 C10,-30 10,-15 0,0" fill="var(--lily-inner)"/>
+        <circle cx="0" cy="-10" r="5" fill="var(--lily-core)"/>
+        <ellipse cx="0" cy="10" rx="40" ry="10" fill="var(--lily-leaf)"/>
+      </g>
+    </svg>
+  </div>
 
   <script>
     const themeToggle = document.getElementById('themeToggle');
