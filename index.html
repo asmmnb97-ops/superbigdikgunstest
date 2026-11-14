@@ -3,118 +3,57 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rain Test — Тренажер</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
+  <title>Rain Test — Конспект-тренажер</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
   <header>
     <a href="index.html" class="logo">
-      <!-- Логотип: Лотос на листе под дождем -->
-      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.2"/>
-          </linearGradient>
-        </defs>
-        <path d="M 50 85 C 20 85, 10 55, 30 40 C 45 28, 55 28, 70 40 C 90 55, 80 85, 50 85 Z" fill="url(#leafGrad)" />
-        <path d="M 50 85 C 40 70, 45 55, 50 50 C 55 55, 60 70, 50 85 Z" fill="var(--lotus-petal)" opacity="0.9"/>
-        <path d="M 50 85 C 30 75, 25 60, 35 50 C 45 60, 45 75, 50 85 Z" fill="var(--lotus-petal)" opacity="0.7"/>
-        <path d="M 50 85 C 70 75, 75 60, 65 50 C 55 60, 55 75, 50 85 Z" fill="var(--lotus-petal)" opacity="0.7"/>
-        <!-- Капли -->
-        <circle class="logo-drop-1" cx="35" cy="25" r="2" fill="var(--accent)"/>
-        <circle class="logo-drop-2" cx="65" cy="20" r="2" fill="var(--accent)"/>
-        <circle class="logo-drop-3" cx="50" cy="15" r="2" fill="var(--accent)"/>
-      </svg>
+      <div class="logo-frame">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+          <line x1="10" y1="3" x2="9" y2="7" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="16" y1="2" x2="15" y2="6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="22" y1="4" x2="21" y2="8" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16 25C10.5 25 7.5 21 8.5 16.5C12 17.5 15 20 16 25Z" fill="var(--lotus-leaf)"/>
+          <path d="M16 25C21.5 25 24.5 21 23.5 16.5C20 17.5 17 20 16 25Z" fill="var(--lotus-leaf)"/>
+        </svg>
+      </div>
       <span>Rain Test</span>
     </a>
-
     <div class="controls">
       <button class="icon-btn" onclick="window.location.href='theory.html'">📖 <span class="btn-label">Теория</span></button>
       <button class="icon-btn" onclick="window.location.href='tickets.html'">🎫 <span class="btn-label">Билеты</span></button>
       <button class="icon-btn" onclick="window.location.href='progress.html'">📊 <span class="btn-label">Прогресс</span></button>
       <button class="icon-btn" onclick="window.location.href='admin.html'">⚙️ <span class="btn-label">Панель</span></button>
-      <button class="icon-btn" id="themeToggle" aria-label="Переключить тему">
-        <span id="themeIcon">🌙</span>
-      </button>
+      <button class="icon-btn" id="themeToggle"><span id="themeIcon">🌙</span></button>
     </div>
   </header>
 
   <main>
     <div class="grid">
-      <a href="subject.html?id=obshaya" class="card">
-        <span class="card-icon">☾</span>
-        <span>Общая психология</span>
-      </a>
-      <a href="subject.html?id=istoriya" class="card">
-        <span class="card-icon">⚶</span>
-        <span>История психологии</span>
-      </a>
-      <a href="subject.html?id=antropologiya" class="card">
-        <span class="card-icon">🜁</span>
-        <span>Антропология</span>
-      </a>
-      <a href="subject.html?id=anatomiya" class="card">
-        <span class="card-icon">🜃</span>
-        <span>Анатомия</span>
-      </a>
+      <a href="subject.html?id=obshaya" class="card"><span class="card-icon">☾</span><span>Общая психология</span></a>
+      <a href="subject.html?id=istoriya" class="card"><span class="card-icon">⚶</span><span>История психологии</span></a>
+      <a href="subject.html?id=antropologiya" class="card"><span class="card-icon">🜁</span><span>Антропология</span></a>
+      <a href="subject.html?id=anatomiya" class="card"><span class="card-icon">🜃</span><span>Анатомия</span></a>
     </div>
   </main>
 
-  <!-- Низ сайта с волнами -->
-  <footer class="pond-footer" id="pondFooter">
-    <svg class="pond-waves" viewBox="0 0 1440 90" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,40 C320,90 480,0 720,40 C960,80 1120,0 1440,40 L1440,90 L0,90 Z" fill="var(--water-surface)"/>
-      <circle cx="300" cy="45" r="2" class="ripple-circle"/>
-      <circle cx="800" cy="35" r="2" class="ripple-circle ripple-delay"/>
-      <circle cx="1200" cy="50" r="2" class="ripple-circle"/>
-    </svg>
-    <div class="pond-base">
-      <span class="pond-hint">✦ Кликни по воде, чтобы пустить круги</span>
+  <footer class="gauge-footer">
+    <div class="gauge-container">
+      <div class="gauge-header"><span>Уровень прогресса</span><span>Шкала дождемера</span></div>
+      <div class="gauge-ruler"><div class="gauge-water" style="width: 35%;"></div></div>
     </div>
   </footer>
 
   <script>
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
-    if (localStorage.getItem('theme') === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      themeIcon.textContent = '☀️';
-    }
+    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeIcon.textContent = '☀️'; }
     themeToggle.onclick = () => {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (isDark) {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
-        themeIcon.textContent = '🌙';
-      } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-        themeIcon.textContent = '☀️';
-      }
+      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
+      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
     };
-
-    // Эффект клика по воде
-    const footer = document.getElementById('pondFooter');
-    footer.addEventListener('click', (e) => {
-      const rect = footer.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      const ripple = document.createElement('div');
-      ripple.className = 'click-ripple';
-      ripple.style.left = x + 'px';
-      ripple.style.top = y + 'px';
-      ripple.style.width = '100px';
-      ripple.style.height = '100px';
-      footer.appendChild(ripple);
-      
-      setTimeout(() => ripple.remove(), 1200);
-    });
   </script>
 </body>
 </html>
