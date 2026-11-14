@@ -10,10 +10,7 @@
 </head>
 <body>
   <header>
-    <a href="index.html" class="logo">
-      <div class="logo-icon"></div>
-      <span>Rain Test</span>
-    </a>
+    <a href="index.html" class="logo"><svg viewBox="0 0 100 100"><path d="M 50 85 C 20 85, 10 55, 30 40 C 45 28, 55 28, 70 40 C 90 55, 80 85, 50 85 Z" fill="var(--accent)"/></svg><span>Rain Test</span></a>
     <div class="controls">
       <button class="icon-btn" id="themeToggle"><span id="themeIcon">🌙</span></button>
     </div>
@@ -21,36 +18,31 @@
 
   <main>
     <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-      <h1 id="title" style="font-family: 'Manrope'; font-size: 1.8rem;"></h1>
-      <button class="btn-primary" id="addBtn" style="display: none;" onclick="openForm()">+ Добавить вопрос</button>
+      <h1 id="title" style="font-family: 'Manrope'; font-size: 1.6rem;"></h1>
+      <button class="btn-primary" id="addBtn" style="display: none;" onclick="openForm()">+ Добавить</button>
     </div>
 
-    <!-- Форма добавления/редактирования -->
     <div id="form-box" class="quiz-card" style="display: none; margin-bottom: 20px;">
       <h2 id="form-title" style="margin-bottom: 20px;">Новый вопрос</h2>
       <input type="hidden" id="edit-id">
       
-      <label style="font-weight: 600; display: block; margin-bottom: 8px;">Тема</label>
-      <input type="text" id="q-topic" placeholder="Например, ЦНС" style="margin-bottom: 16px;">
+      <input type="text" id="q-topic" placeholder="Тема (например, ЦНС)">
       
-      <label style="font-weight: 600; display: block; margin-bottom: 8px;">Тип вопроса</label>
-      <select id="q-type" style="width: 100%; padding: 16px; border-radius: 12px; border: 1.5px solid var(--border-color); background: var(--bg-main); color: var(--text-primary); font-family: inherit; font-size: 1rem; margin-bottom: 16px;">
+      <select id="q-type">
         <option value="test">Тест (4 варианта)</option>
-        <option value="open">Открытый (свободный ответ)</option>
+        <option value="open">Открытый</option>
         <option value="word">Вставить слово</option>
         <option value="match">На соответствие</option>
       </select>
 
-      <label style="font-weight: 600; display: block; margin-bottom: 8px;">Текст вопроса</label>
-      <textarea id="q-text" rows="3" placeholder="Текст вопроса..." style="margin-bottom: 16px;"></textarea>
+      <textarea id="q-text" rows="3" placeholder="Текст вопроса..."></textarea>
 
-      <!-- Поля для теста -->
       <div id="fields-test">
-        <input type="text" id="opt0" placeholder="Вариант А" style="margin-bottom: 8px;">
-        <input type="text" id="opt1" placeholder="Вариант Б" style="margin-bottom: 8px;">
-        <input type="text" id="opt2" placeholder="Вариант В" style="margin-bottom: 8px;">
-        <input type="text" id="opt3" placeholder="Вариант Г" style="margin-bottom: 8px;">
-        <select id="correct" style="width: 100%; padding: 16px; border-radius: 12px; border: 1.5px solid var(--border-color); background: var(--bg-main); color: var(--text-primary); font-family: inherit; margin-bottom: 16px;">
+        <input type="text" id="opt0" placeholder="Вариант А">
+        <input type="text" id="opt1" placeholder="Вариант Б">
+        <input type="text" id="opt2" placeholder="Вариант В">
+        <input type="text" id="opt3" placeholder="Вариант Г">
+        <select id="correct">
           <option value="0">Правильный: А</option>
           <option value="1">Правильный: Б</option>
           <option value="2">Правильный: В</option>
@@ -58,19 +50,15 @@
         </select>
       </div>
 
-      <!-- Поля для вставить слово -->
       <div id="fields-word" style="display: none;">
-        <input type="text" id="word-answer" placeholder="Правильное слово (ответ)" style="margin-bottom: 16px;">
+        <input type="text" id="word-answer" placeholder="Правильное слово">
       </div>
 
-      <!-- Поля для соответствия -->
       <div id="fields-match" style="display: none;">
-        <p style="margin-bottom: 8px; font-size: 0.9rem; color: var(--text-secondary);">Впиши пары (слева - понятие, справа - определение), каждую с новой строки через двоеточие:</p>
-        <textarea id="match-pairs" rows="4" placeholder="Ощущение: Отражение отдельного свойства&#10;Восприятие: Целостный образ предмета" style="margin-bottom: 16px;"></textarea>
+        <textarea id="match-pairs" rows="4" placeholder="Ощущение: Отражение отдельного свойства&#10;Восприятие: Целостный образ предмета"></textarea>
       </div>
 
-      <label style="font-weight: 600; display: block; margin-bottom: 8px;">Пояснение (необязательно)</label>
-      <textarea id="q-explain" rows="2" placeholder="Пояснение..." style="margin-bottom: 16px;"></textarea>
+      <textarea id="q-explain" rows="2" placeholder="Пояснение (необязательно)"></textarea>
 
       <div style="display: flex; gap: 10px;">
         <button class="btn-primary" onclick="saveQuestion()">Сохранить</button>
@@ -80,6 +68,10 @@
 
     <div id="content"></div>
   </main>
+
+  <footer class="pond-footer" id="pondFooter">
+    <svg class="pond-waves" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0,40 C320,90 480,0 720,40 C960,80 1120,0 1440,40 L1440,90 L0,90 Z" fill="var(--water-surface)"/></svg>
+  </footer>
 
   <script>
     const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
@@ -107,7 +99,7 @@
 
     window.openForm = (q = null) => {
       document.getElementById("form-box").style.display = "block";
-      document.getElementById("form-title").textContent = q ? "Редактировать вопрос" : "Новый вопрос";
+      document.getElementById("form-title").textContent = q ? "Редактировать" : "Новый вопрос";
       document.getElementById("edit-id").value = q ? q.id : "";
       document.getElementById("q-topic").value = q ? q.topic : "";
       document.getElementById("q-type").value = q ? q.question_type : "test";
@@ -165,16 +157,15 @@
       }
 
       if (editId) {
-        const { error } = await db.from('questions').update(payload).eq('id', editId);
-        if (error) alert(error.message); else { closeForm(); loadData(); }
+        await db.from('questions').update(payload).eq('id', editId);
       } else {
-        const { error } = await db.from('questions').insert([payload]);
-        if (error) alert(error.message); else { closeForm(); loadData(); }
+        await db.from('questions').insert([payload]);
       }
+      closeForm(); loadData();
     };
 
     window.deleteQuestion = async (qid) => {
-      if (!confirm("Удалить вопрос?")) return;
+      if (!confirm("Удалить?")) return;
       await db.from('questions').delete().eq('id', qid);
       loadData();
     };
@@ -186,52 +177,21 @@
       content.innerHTML = questions.map(q => {
         const adminBtns = isAdmin ? `
           <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 8px;">
-            <button class="icon-btn" style="padding: 6px;" onclick="openForm(${JSON.stringify(q).replace(/"/g, '&quot;')})">✏️</button>
+            <button class="icon-btn" style="padding: 6px;" onclick='openForm(${JSON.stringify(q).replace(/'/g, "&#39;")})'>✏️</button>
             <button class="icon-btn" style="padding: 6px; color: var(--error);" onclick="deleteQuestion(${q.id})">🗑️</button>
           </div>
         ` : "";
 
         let innerHTML = "";
         if (q.question_type === "test") {
-          innerHTML = `
-            <div class="options-list">
-              ${q.options.map((opt, i) => `
-                <button class="option-btn" onclick="checkTest(${q.id}, ${i}, ${q.correct_answer})">
-                  <span class="option-letter">${['А','Б','В','Г'][i]}</span>
-                  <span>${opt}</span>
-                </button>
-              `).join("")}
-            </div>`;
+          innerHTML = `<div class="options-list">${q.options.map((opt, i) => `<button class="option-btn" onclick="checkTest(${q.id}, ${i}, ${q.correct_answer})"><span class="option-letter">${['А','Б','В','Г'][i]}</span><span>${opt}</span></button>`).join("")}</div>`;
         } else if (q.question_type === "open") {
-          innerHTML = `
-            <textarea rows="3" placeholder="Напишите свой вариант..."></textarea>
-            <button class="btn-secondary" style="margin-top: 10px;" onclick="toggleAnswer(${q.id})">Показать ответ</button>
-            <div id="ans-${q.id}" class="explanation">
-              <div class="explanation-title">Эталонный ответ</div>
-              <div class="explanation-text">${q.model_answer || "Нет ответа"}</div>
-            </div>
-          `;
+          innerHTML = `<textarea rows="3" placeholder="Ваш ответ..."></textarea><button class="btn-secondary" style="margin-top: 10px;" onclick="toggleAnswer(${q.id})">Показать ответ</button><div id="ans-${q.id}" class="explanation"><div class="explanation-title">Эталон</div><div class="explanation-text">${q.model_answer || "Нет"}</div></div>`;
         } else if (q.question_type === "word") {
-          innerHTML = `
-            <input type="text" id="word-input-${q.id}" placeholder="Введите слово...">
-            <button class="btn-secondary" style="margin-top: 10px;" onclick="checkWord(${q.id}, '${q.metadata?.answer}')">Проверить</button>
-            <div id="res-${q.id}" style="margin-top: 10px;"></div>
-          `;
+          innerHTML = `<input type="text" id="word-input-${q.id}" placeholder="Введите слово..."><button class="btn-secondary" style="margin-top: 10px;" onclick="checkWord(${q.id}, '${q.metadata?.answer}')">Проверить</button><div id="res-${q.id}" style="margin-top: 10px;"></div>`;
         } else if (q.question_type === "match") {
           const pairs = (q.metadata?.pairs || "").split("\n").filter(l => l.includes(":"));
-          innerHTML = `
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
-              ${pairs.map((p, i) => {
-                const [left, right] = p.split(":");
-                return `<div style="display: flex; gap: 10px; align-items: center;">
-                  <span style="flex: 1; font-weight: 500;">${left.trim()}</span>
-                  <input type="text" id="match-${q.id}-${i}" placeholder="Ваш ответ..." style="flex: 1;">
-                  <span style="flex: 1; color: var(--text-secondary); font-size: 0.9rem;">(Верно: ${right.trim()})</span>
-                </div>`;
-              }).join("")}
-            </div>
-            <button class="btn-secondary" onclick="toggleAnswer(${q.id})">Показать ответы</button>
-          `;
+          innerHTML = `<div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">${pairs.map((p, i) => { const [left, right] = p.split(":"); return `<div style="display: flex; gap: 10px; align-items: center;"><span style="flex: 1; font-weight: 500;">${left.trim()}</span><input type="text" id="match-${q.id}-${i}" placeholder="Ответ..." style="flex: 1;"><span style="flex: 1; color: var(--text-secondary); font-size: 0.9rem;">(${right.trim()})</span></div>`; }).join("")}</div><button class="btn-secondary" onclick="toggleAnswer(${q.id})">Показать ответы</button>`;
         }
 
         return `
@@ -250,11 +210,7 @@
       const card = document.querySelector(`.quiz-card:has(.option-btn[onclick*="${qid}"])`);
       if(!card) return;
       const btns = card.querySelectorAll('.option-btn');
-      btns.forEach((btn, i) => {
-        btn.disabled = true;
-        if (i === correct) btn.classList.add('correct');
-        else if (i === selected && i !== correct) btn.classList.add('wrong');
-      });
+      btns.forEach((btn, i) => { btn.disabled = true; if (i === correct) btn.classList.add('correct'); else if (i === selected && i !== correct) btn.classList.add('wrong'); });
       const exp = document.getElementById(`exp-${qid}`);
       if (exp) exp.classList.add('show');
     };
@@ -268,11 +224,8 @@
       const input = document.getElementById(`word-input-${qid}`).value.trim().toLowerCase();
       const correct = (answer || "").trim().toLowerCase();
       const res = document.getElementById(`res-${qid}`);
-      if (input === correct) {
-        res.innerHTML = `<span style="color: var(--success); font-weight: 600;">✅ Верно!</span>`;
-      } else {
-        res.innerHTML = `<span style="color: var(--error); font-weight: 600;">❌ Неверно. Правильный ответ: ${answer}</span>`;
-      }
+      if (input === correct) res.innerHTML = `<span style="color: var(--success); font-weight: 600;">✅ Верно!</span>`;
+      else res.innerHTML = `<span style="color: var(--error); font-weight: 600;">❌ Неверно. Ответ: ${answer}</span>`;
     };
 
     loadData();
@@ -285,6 +238,19 @@
       if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
       else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
     };
+
+    // Волны клик
+    const footer = document.getElementById('pondFooter');
+    footer.addEventListener('click', (e) => {
+      const rect = footer.getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.className = 'click-ripple';
+      ripple.style.left = (e.clientX - rect.left) + 'px';
+      ripple.style.top = (e.clientY - rect.top) + 'px';
+      ripple.style.width = '100px'; ripple.style.height = '100px';
+      footer.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 1200);
+    });
   </script>
 </body>
 </html>
