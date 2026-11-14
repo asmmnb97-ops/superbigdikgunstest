@@ -32,29 +32,59 @@
     <div id="form-box" class="quiz-card" style="display: none; margin-bottom: 20px;">
       <h2 id="form-title" style="margin-bottom: 20px;">Новый вопрос</h2>
       <input type="hidden" id="edit-id">
+      
       <label style="font-weight: 600; display: block; margin-bottom: 8px;">Тема</label>
       <input type="text" id="q-topic" placeholder="Например, ЦНС">
+      
       <label style="font-weight: 600; display: block; margin-bottom: 8px;">Тип вопроса</label>
       <select id="q-type">
         <option value="test">Тест (4 варианта)</option>
-        <option value="open">Открытый</option>
+        <option value="open">Открытый (свободный ответ)</option>
         <option value="word">Вставить слово</option>
         <option value="match">На соответствие</option>
       </select>
+
       <label style="font-weight: 600; display: block; margin-bottom: 8px;">Текст вопроса</label>
       <textarea id="q-text" rows="3" placeholder="Текст вопроса..."></textarea>
+
+      <!-- Поля для теста -->
       <div id="fields-test">
         <input type="text" id="opt0" placeholder="Вариант А">
         <input type="text" id="opt1" placeholder="Вариант Б">
         <input type="text" id="opt2" placeholder="Вариант В">
         <input type="text" id="opt3" placeholder="Вариант Г">
-        <select id="correct"><option value="0">Правильный: А</option><option value="1">Правильный: Б</option><option value="2">Правильный: В</option><option value="3">Правильный: Г</option></select>
+        <select id="correct">
+          <option value="0">Правильный: А</option>
+          <option value="1">Правильный: Б</option>
+          <option value="2">Правильный: В</option>
+          <option value="3">Правильный: Г</option>
+        </select>
       </div>
-      <div id="fields-word" style="display: none;"><input type="text" id="word-answer" placeholder="Правильное слово"></div>
-      <div id="fields-match" style="display: none;"><textarea id="match-pairs" rows="3" placeholder="Ощущение: Отражение...&#10;Восприятие: Целостный образ..."></textarea></div>
+
+      <!-- Поля для открытого (ВОТ ОНО!) -->
+      <div id="fields-open" style="display: none;">
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Эталонный ответ</label>
+        <textarea id="open-answer" rows="3" placeholder="Введите правильный ответ (эталон)..."></textarea>
+      </div>
+
+      <!-- Поля для вставить слово -->
+      <div id="fields-word" style="display: none;">
+        <input type="text" id="word-answer" placeholder="Правильное слово (ответ)">
+      </div>
+
+      <!-- Поля для соответствия -->
+      <div id="fields-match" style="display: none;">
+        <p style="margin-bottom: 8px; font-size: 0.9rem; color: var(--text-secondary);">Впиши пары (каждую с новой строки через двоеточие):</p>
+        <textarea id="match-pairs" rows="3" placeholder="Ощущение: Отражение отдельного свойства&#10;Восприятие: Целостный образ предмета"></textarea>
+      </div>
+
       <label style="font-weight: 600; display: block; margin-bottom: 8px;">Пояснение (необязательно)</label>
-      <textarea id="q-explain" rows="2"></textarea>
-      <div style="display: flex; gap: 10px; margin-top: 20px;"><button class="btn-primary" onclick="saveQuestion()">Сохранить</button><button class="btn-secondary" onclick="closeForm()">Отмена</button></div>
+      <textarea id="q-explain" rows="2" placeholder="Пояснение для тестов..."></textarea>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn-primary" onclick="saveQuestion()">Сохранить</button>
+        <button class="btn-secondary" onclick="closeForm()">Отмена</button>
+      </div>
     </div>
 
     <div id="content"></div>
@@ -92,7 +122,9 @@
       document.getElementById("q-type").value = q ? q.question_type : "test";
       document.getElementById("q-text").value = q ? q.question_text : "";
       document.getElementById("q-explain").value = q ? q.explanation : "";
+      
       document.getElementById("fields-test").style.display = "none";
+      document.getElementById("fields-open").style.display = "none";
       document.getElementById("fields-word").style.display = "none";
       document.getElementById("fields-match").style.display = "none";
 
@@ -103,6 +135,9 @@
         document.getElementById("opt2").value = q.options[2] || "";
         document.getElementById("opt3").value = q.options[3] || "";
         document.getElementById("correct").value = q.correct_answer;
+      } else if (q && q.question_type === "open") {
+        document.getElementById("fields-open").style.display = "block";
+        document.getElementById("open-answer").value = q.model_answer || "";
       } else if (q && q.question_type === "word") {
         document.getElementById("fields-word").style.display = "block";
         document.getElementById("word-answer").value = q.metadata?.answer || "";
@@ -115,55 +150,144 @@
     };
 
     window.closeForm = () => document.getElementById("form-box").style.display = "none";
+
     document.getElementById("q-type").onchange = (e) => {
-      document.getElementById("fields-test").style.display = e.target.value === "test" ? "block" : "none";
-      document.getElementById("fields-word").style.display = e.target.value === "word" ? "block" : "none";
-      document.getElementById("fields-match").style.display = e.target.value === "match" ? "block" : "none";
+      const val = e.target.value;
+      document.getElementById("fields-test").style.display = val === "test" ? "block" : "none";
+      document.getElementById("fields-open").style.display = val === "open" ? "block" : "none";
+      document.getElementById("fields-word").style.display = val === "word" ? "block" : "none";
+      document.getElementById("fields-match").style.display = val === "match" ? "block" : "none";
     };
 
     window.saveQuestion = async () => {
       const editId = document.getElementById("edit-id").value;
       const type = document.getElementById("q-type").value;
-      const payload = { subject: id, topic: document.getElementById("q-topic").value, question_type: type, question_text: document.getElementById("q-text").value, explanation: document.getElementById("q-explain").value };
-      if (type === "test") { payload.options = [document.getElementById("opt0").value, document.getElementById("opt1").value, document.getElementById("opt2").value, document.getElementById("opt3").value]; payload.correct_answer = parseInt(document.getElementById("correct").value); } 
-      else if (type === "word") { payload.metadata = { answer: document.getElementById("word-answer").value }; } 
-      else if (type === "match") { payload.metadata = { pairs: document.getElementById("match-pairs").value }; }
+      const payload = {
+        subject: id,
+        topic: document.getElementById("q-topic").value,
+        question_type: type,
+        question_text: document.getElementById("q-text").value,
+        explanation: document.getElementById("q-explain").value
+      };
 
-      if (editId) { const { error } = await db.from('questions').update(payload).eq('id', editId); if (error) alert(error.message); else { closeForm(); loadData(); } } 
-      else { const { error } = await db.from('questions').insert([payload]); if (error) alert(error.message); else { closeForm(); loadData(); } }
+      if (type === "test") {
+        payload.options = [document.getElementById("opt0").value, document.getElementById("opt1").value, document.getElementById("opt2").value, document.getElementById("opt3").value];
+        payload.correct_answer = parseInt(document.getElementById("correct").value);
+      } else if (type === "open") {
+        payload.model_answer = document.getElementById("open-answer").value; // Вот здесь сохраняется ответ
+      } else if (type === "word") {
+        payload.metadata = { answer: document.getElementById("word-answer").value };
+      } else if (type === "match") {
+        payload.metadata = { pairs: document.getElementById("match-pairs").value };
+      }
+
+      if (editId) {
+        const { error } = await db.from('questions').update(payload).eq('id', editId);
+        if (error) alert(error.message); else { closeForm(); loadData(); }
+      } else {
+        const { error } = await db.from('questions').insert([payload]);
+        if (error) alert(error.message); else { closeForm(); loadData(); }
+      }
     };
 
-    window.deleteQuestion = async (qid) => { if (!confirm("Удалить?")) return; await db.from('questions').delete().eq('id', qid); loadData(); };
+    window.deleteQuestion = async (qid) => {
+      if (!confirm("Удалить вопрос?")) return;
+      await db.from('questions').delete().eq('id', qid);
+      loadData();
+    };
 
     function render() {
       const content = document.getElementById("content");
       if (!questions.length) { content.innerHTML = "<p>Вопросов пока нет.</p>"; return; }
+
       content.innerHTML = questions.map(q => {
-        const adminBtns = isAdmin ? `<div class="admin-actions"><button class="mini-btn" onclick='openForm(${JSON.stringify(q).replace(/'/g, "&#39;")})'>✏️</button><button class="mini-btn delete" onclick="deleteQuestion(${q.id})">🗑️</button></div>` : "";
+        const adminBtns = isAdmin ? `
+          <div class="admin-actions">
+            <button class="mini-btn" onclick='openForm(${JSON.stringify(q).replace(/'/g, "&#39;")})'>✏️</button>
+            <button class="mini-btn delete" onclick="deleteQuestion(${q.id})">🗑️</button>
+          </div>
+        ` : "";
+
         let innerHTML = "";
         if (q.question_type === "test") {
-          innerHTML = `<div class="options-list">${q.options.map((opt, i) => `<button class="option-btn" onclick="checkTest(this, ${i}, ${q.correct_answer}, ${q.id})"><span class="option-letter">${['А','Б','В','Г'][i]}</span><span>${opt}</span></button>`).join("")}</div><div id="exp-${q.id}" class="explanation"><div class="explanation-title">💡 Почему так?</div><div class="explanation-text">${q.explanation || ""}</div></div>`;
+          innerHTML = `
+            <div class="options-list">
+              ${q.options.map((opt, i) => `
+                <button class="option-btn" onclick="checkTest(this, ${i}, ${q.correct_answer}, ${q.id})">
+                  <span class="option-letter">${['А','Б','В','Г'][i]}</span>
+                  <span>${opt}</span>
+                </button>
+              `).join("")}
+            </div>
+            <div id="exp-${q.id}" class="explanation"><div class="explanation-title">💡 Почему так?</div><div class="explanation-text">${q.explanation || ""}</div></div>
+          `;
         } else if (q.question_type === "open") {
-          innerHTML = `<textarea rows="3" placeholder="Ваш ответ..."></textarea><button class="btn-secondary" style="margin-top: 10px;" onclick="toggleAnswer('ans-${q.id}')">Показать ответ</button><div id="ans-${q.id}" class="explanation"><div class="explanation-title">Эталон</div><div class="explanation-text">${q.model_answer || "Нет ответа"}</div></div>`;
+          innerHTML = `
+            <textarea rows="3" placeholder="Напишите свой вариант..."></textarea>
+            <button class="btn-secondary" style="margin-top: 10px;" onclick="toggleAnswer('ans-${q.id}')">Показать ответ</button>
+            <div id="ans-${q.id}" class="explanation">
+              <div class="explanation-title">Эталонный ответ</div>
+              <div class="explanation-text">${q.model_answer || "Ответ не добавлен"}</div>
+            </div>
+          `;
         } else if (q.question_type === "word") {
-          innerHTML = `<input type="text" id="word-input-${q.id}" placeholder="Введите слово..."><button class="btn-secondary" onclick="checkWord(${q.id}, '${q.metadata?.answer}')">Проверить</button><div id="res-${q.id}" style="margin-top: 10px;"></div>`;
+          innerHTML = `
+            <input type="text" id="word-input-${q.id}" placeholder="Введите слово...">
+            <button class="btn-secondary" onclick="checkWord(${q.id}, '${q.metadata?.answer}')">Проверить</button>
+            <div id="res-${q.id}" style="margin-top: 10px;"></div>
+          `;
         } else if (q.question_type === "match") {
           const pairs = (q.metadata?.pairs || "").split("\n").filter(l => l.includes(":"));
-          innerHTML = `<div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">${pairs.map((p, i) => { const [left, right] = p.split(":"); return `<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;"><span style="flex: 1; font-weight: 500; min-width: 100px;">${left.trim()}</span><input type="text" id="match-${q.id}-${i}" placeholder="Ваш ответ..." style="flex: 1;"></div>`; }).join("")}</div><button class="btn-secondary" onclick="toggleAnswer('ans-${q.id}')">Показать ответы</button><div id="ans-${q.id}" class="explanation">${pairs.map(p => `<div>${p.replace(":", " — ")}</div>`).join("")}</div>`;
+          innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;">
+              ${pairs.map((p, i) => {
+                const [left, right] = p.split(":");
+                return `<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                  <span style="flex: 1; font-weight: 500; min-width: 100px;">${left.trim()}</span>
+                  <input type="text" id="match-${q.id}-${i}" placeholder="Ваш ответ..." style="flex: 1;">
+                </div>`;
+              }).join("")}
+            </div>
+            <button class="btn-secondary" onclick="toggleAnswer('ans-${q.id}')">Показать правильные ответы</button>
+            <div id="ans-${q.id}" class="explanation">
+              ${pairs.map(p => `<div>${p.replace(":", " — ")}</div>`).join("")}
+            </div>
+          `;
         }
-        return `<div class="quiz-card">${adminBtns}<span class="subject-tag">${q.topic || "Разное"}</span><h2 class="question-text">${q.question_text}</h2>${innerHTML}</div>`;
+
+        return `
+          <div class="quiz-card">
+            ${adminBtns}
+            <span class="subject-tag">${q.topic || "Разное"}</span>
+            <h2 class="question-text">${q.question_text}</h2>
+            ${innerHTML}
+          </div>
+        `;
       }).join("");
     }
 
     window.checkTest = (btn, selected, correct, qid) => {
-      const card = btn.closest('.quiz-card'); const btns = card.querySelectorAll('.option-btn');
-      btns.forEach((b, i) => { b.disabled = true; if (i === correct) b.classList.add('correct'); else if (i === selected && i !== correct) b.classList.add('wrong'); });
+      const card = btn.closest('.quiz-card');
+      const btns = card.querySelectorAll('.option-btn');
+      btns.forEach((b, i) => {
+        b.disabled = true;
+        if (i === correct) b.classList.add('correct');
+        else if (i === selected && i !== correct) b.classList.add('wrong');
+      });
       document.getElementById(`exp-${qid}`).classList.add('show');
     };
-    window.toggleAnswer = (id) => document.getElementById(id).classList.toggle('show');
+
+    window.toggleAnswer = (id) => { document.getElementById(id).classList.toggle('show'); };
+
     window.checkWord = (qid, answer) => {
-      const input = document.getElementById(`word-input-${qid}`).value.trim().toLowerCase(); const correct = (answer || "").trim().toLowerCase(); const res = document.getElementById(`res-${qid}`);
-      res.innerHTML = input === correct ? `<span style="color: var(--success); font-weight: 600;">✅ Верно!</span>` : `<span style="color: var(--error); font-weight: 600;">❌ Неверно. Ответ: ${answer}</span>`;
+      const input = document.getElementById(`word-input-${qid}`).value.trim().toLowerCase();
+      const correct = (answer || "").trim().toLowerCase();
+      const res = document.getElementById(`res-${qid}`);
+      if (input === correct) {
+        res.innerHTML = `<span style="color: var(--success); font-weight: 600;">✅ Верно!</span>`;
+      } else {
+        res.innerHTML = `<span style="color: var(--error); font-weight: 600;">❌ Неверно. Правильный ответ: ${answer}</span>`;
+      }
     };
 
     loadData();
