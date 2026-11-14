@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rain Test — Тренажер</title>
+  <title>Rain Test</title>
   <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <a href="index.html" class="logo">
-      <div class="logo-icon-wrap">Ψ</div>
+      <div class="logo-badge"><svg class="logo-icon" viewBox="0 0 24 24"><path d="M12 2L15 9H9L12 2Z"/><path d="M12 22L9 15H15L12 22Z"/><path d="M2 12L9 9V15L2 12Z"/><path d="M22 12L15 15V9L22 12Z"/></svg></div>
       <span>Rain Test</span>
     </a>
     <div class="nav-tabs">
@@ -30,47 +30,21 @@
     <p class="section-subtitle">Начни подготовку к коллоквиуму или экзамену</p>
     
     <div class="subjects-grid">
-      <a href="subject.html?id=obshaya" class="subject-card">
-        <span class="subject-icon">☾</span>
-        <div class="subject-name">Общая психология</div>
-        <div class="subject-meta">Теория и практика</div>
-      </a>
-      <a href="subject.html?id=istoriya" class="subject-card">
-        <span class="subject-icon">⚶</span>
-        <div class="subject-name">История психологии</div>
-        <div class="subject-meta">Этапы развития науки</div>
-      </a>
-      <a href="subject.html?id=antropologiya" class="subject-card">
-        <span class="subject-icon">🜁</span>
-        <div class="subject-name">Антропология</div>
-        <div class="subject-meta">Человек и культура</div>
-      </a>
-      <a href="subject.html?id=anatomiya" class="subject-card">
-        <span class="subject-icon">🜃</span>
-        <div class="subject-name">Анатомия</div>
-        <div class="subject-meta">Строение тела</div>
-      </a>
+      <a href="subject.html?id=obshaya" class="subject-card"><span class="subject-icon">☾</span><div class="subject-name">Общая психология</div><div class="subject-meta">Теория и практика</div></a>
+      <a href="subject.html?id=istoriya" class="subject-card"><span class="subject-icon">⚶</span><div class="subject-name">История психологии</div><div class="subject-meta">Этапы развития науки</div></a>
+      <a href="subject.html?id=antropologiya" class="subject-card"><span class="subject-icon">🜁</span><div class="subject-name">Антропология</div><div class="subject-meta">Человек и культура</div></a>
+      <a href="subject.html?id=anatomiya" class="subject-card"><span class="subject-icon">🜃</span><div class="subject-name">Анатомия</div><div class="subject-meta">Строение тела</div></a>
     </div>
   </main>
 
   <script>
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
-    if (localStorage.getItem('theme') === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      themeIcon.textContent = '☀️';
-    }
+    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeIcon.textContent = '☀️'; }
     themeToggle.onclick = () => {
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (isDark) {
-        document.documentElement.removeAttribute('data-theme');
-        localStorage.setItem('theme', 'light');
-        themeIcon.textContent = '🌙';
-      } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-        themeIcon.textContent = '☀️';
-      }
+      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
+      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
     };
   </script>
 </body>

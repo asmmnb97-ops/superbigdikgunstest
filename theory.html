@@ -10,7 +10,7 @@
 </head>
 <body>
   <header>
-    <a href="index.html" class="logo"><div class="logo-icon-wrap">Ψ</div><span>Rain Test</span></a>
+    <a href="index.html" class="logo"><div class="logo-badge"><svg class="logo-icon" viewBox="0 0 24 24"><path d="M12 2L15 9H9L12 2Z"/><path d="M12 22L9 15H15L12 22Z"/><path d="M2 12L9 9V15L2 12Z"/><path d="M22 12L15 15V9L22 12Z"/></svg></div><span>Rain Test</span></a>
     <div class="nav-tabs">
       <a href="index.html" class="nav-tab">Предметы</a>
       <a href="theory.html" class="nav-tab active">Теория</a>
@@ -21,20 +21,41 @@
   </header>
 
   <main>
-    <h1 id="th-header" class="section-title">Теория</h1>
-    <p class="section-subtitle">Конспекты и материалы по дисциплинам</p>
-
-    <div id="admin-theory-box" style="display: none; margin-bottom: 30px;">
-      <div class="quiz-card">
-        <h3 style="margin-bottom: 15px;">Добавить теорию</h3>
-        <select id="th-subject" style="margin-bottom: 10px;"></select>
-        <input type="text" id="th-title" placeholder="Заголовок темы">
-        <textarea id="th-content" placeholder="Текст (можно HTML: <img src='...'>)" rows="5"></textarea>
-        <button class="btn-primary" onclick="saveTheory()">Сохранить</button>
-      </div>
+    <!-- ЭКРАН 1: Список дисциплин -->
+    <div id="view-list">
+      <h1 class="section-title">Теория</h1>
+      <p class="section-subtitle">Конспекты и статьи по дисциплинам</p>
+      <div id="theory-list" class="subjects-grid"></div>
     </div>
 
-    <div id="content-area" class="subjects-grid"></div>
+    <!-- ЭКРАН 2: Тексты внутри дисциплины -->
+    <div id="view-subject" style="display: none;">
+      <a href="#" onclick="showList(); return false;" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem;">← Назад</a>
+      <h1 id="th-header" class="section-title" style="margin-top: 6px;"></h1>
+      <div id="th-content"></div>
+    </div>
+
+    <!-- Панель админа (добавление текста с картинкой) -->
+    <div id="admin-theory-box" style="display: none; margin-top: 30px;">
+      <div class="quiz-card">
+        <h3 style="margin-bottom: 16px;">Добавить теорию</h3>
+        <select id="th-subject">
+          <option value="anatomiya">Анатомия</option>
+          <option value="obshaya">Общая психология</option>
+          <option value="istoriya">История психологии</option>
+          <option value="antropologiya">Антропология</option>
+        </select>
+        <input type="text" id="th-title" placeholder="Заголовок темы">
+        <textarea id="th-content-text" rows="4" placeholder="Текст теории..."></textarea>
+        
+        <!-- Кнопка загрузки картинки -->
+        <label style="font-weight: 600; display: block; margin-bottom: 8px;">Прикрепить картинку</label>
+        <input type="file" id="th-image" accept="image/*" style="border: none; background: transparent; padding: 0; margin-bottom: 12px;">
+        
+        <button class="btn-primary" onclick="saveTheory()">Сохранить</button>
+        <p id="th-msg" style="color: var(--success); margin-top: 10px;"></p>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -43,82 +64,92 @@
     const { createClient } = supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const subNames = { obshaya: "Общая психология", istoriya: "История психологии", antropologiya: "Антропология", anatomiya: "Анатомия" };
     let isAdmin = false;
-    let subjList = [];
-    const contentArea = document.getElementById("content-area");
-    const thHeader = document.getElementById("th-header");
-    const adminBox = document.getElementById("admin-theory-box");
-    const subjSelect = document.getElementById("th-subject");
 
     db.auth.getSession().then(({ data: { session } }) => {
-      if (session) { isAdmin = true; adminBox.style.display = "block"; }
+      if (session) { isAdmin = true; document.getElementById("admin-theory-box").style.display = "block"; }
     });
 
-    async function loadSubjects() {
-      const { data } = await db.from('subjects').select('*').order('name');
-      subjList = data || [];
-      subjSelect.innerHTML = subjList.map(s => `<option value="${s.id}">${s.name}</option>`).join("");
-      showSubjects();
-    }
-
-    function showSubjects() {
-      thHeader.textContent = "Выберите дисциплину";
-      contentArea.innerHTML = subjList.map(s => `
-        <a href="#" class="subject-card" onclick="showThemes('${s.id}', '${s.name}'); return false;">
-          <div class="subject-name">${s.name}</div>
+    // Показать список дисциплин
+    async function showList() {
+      document.getElementById("view-list").style.display = "block";
+      document.getElementById("view-subject").style.display = "none";
+      document.getElementById("admin-theory-box").style.display = isAdmin ? "block" : "none";
+      
+      const list = document.getElementById("theory-list");
+      list.innerHTML = Object.entries(subNames).map(([id, name]) => `
+        <a href="#" class="subject-card" onclick="showSubject('${id}', '${name}'); return false;">
+          <div class="subject-name">${name}</div>
+          <div class="subject-meta">Перейти к конспектам</div>
         </a>
       `).join("");
     }
 
-    async function showThemes(subId, subName) {
-      thHeader.textContent = subName;
-      contentArea.innerHTML = "<p>Загрузка тем...</p>";
-      const { data } = await db.from('theory').select('*').eq('subject', subId).order('id', { ascending: false });
+    // Показать темы внутри дисциплины
+    async function showSubject(subId, subName) {
+      document.getElementById("view-list").style.display = "none";
+      document.getElementById("view-subject").style.display = "block";
+      document.getElementById("admin-theory-box").style.display = isAdmin ? "block" : "none";
+      document.getElementById("th-header").textContent = subName;
+      document.getElementById("th-subject").value = subId;
       
-      if (!data || !data.length) {
-        contentArea.innerHTML = `<p>По этой дисциплине пока нет теории.</p> <button class="btn-primary" onclick="showSubjects()">Назад</button>`;
-        return;
-      }
+      const content = document.getElementById("th-content");
+      content.innerHTML = "<p>Загрузка...</p>";
 
-      let html = `<div style="grid-column: 1/-1; margin-bottom: 20px;"><button class="btn-secondary" onclick="showSubjects()">← Назад к дисциплинам</button></div>`;
-      data.forEach(t => {
-        html += `
-          <div class="quiz-card" style="grid-column: 1/-1;">
-            <h2>${t.title}</h2>
-            <div style="margin-top: 15px;">${t.content}</div>
-            ${isAdmin ? `<button class="btn-secondary" style="margin-top:15px; color:var(--error);" onclick="deleteTheory(${t.id}, '${subId}', '${subName}')">Удалить</button>` : ""}
-          </div>
-        `;
-      });
-      contentArea.innerHTML = html;
+      const { data, error } = await db.from('theory').select('*').eq('subject', subId).order('id', { ascending: false });
+      if (error || !data.length) { content.innerHTML = "<p>Пока нет добавленной теории.</p>"; return; }
+
+      content.innerHTML = data.map(t => `
+        <div class="quiz-card">
+          <h2 style="margin-bottom: 16px;">${t.title}</h2>
+          <div class="theory-content" style="line-height: 1.6; color: var(--text-secondary);">${t.content}</div>
+        </div>
+      `).join("");
     }
 
+    // Сохранить теорию с картинкой
     window.saveTheory = async () => {
-      const subject = subjSelect.value;
+      const subject = document.getElementById("th-subject").value;
       const title = document.getElementById("th-title").value;
-      const content = document.getElementById("th-content").value;
-      if (!title || !content) { alert("Заполните поля!"); return; }
-      const { error } = await db.from('theory').insert([{ subject, title, content }]);
-      if (error) alert("Ошибка: " + error.message);
-      else { document.getElementById("th-title").value = ""; document.getElementById("th-content").value = ""; alert("Добавлено!"); }
+      let text = document.getElementById("th-content-text").value;
+      const imageFile = document.getElementById("th-image").files[0];
+      const msg = document.getElementById("th-msg");
+
+      if (!title || (!text && !imageFile)) { alert("Заполните заголовок и текст!"); return; }
+      msg.textContent = "Сохранение...";
+
+      // Если выбрана картинка, загружаем её в Storage
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await db.storage.from('images').upload(fileName, imageFile);
+        if (uploadError) { msg.textContent = "Ошибка загрузки фото: " + uploadError.message; return; }
+        
+        // Получаем ссылку на картинку
+        const { data: publicUrlData } = db.storage.from('images').getPublicUrl(fileName);
+        text += `<br><img src="${publicUrlData.publicUrl}" alt="Картинка">`;
+      }
+
+      const { error } = await db.from('theory').insert([{ subject, title, content: text }]);
+      if (error) { msg.textContent = "Ошибка: " + error.message; }
+      else {
+        msg.textContent = "Успешно добавлено!";
+        document.getElementById("th-title").value = "";
+        document.getElementById("th-content-text").value = "";
+        document.getElementById("th-image").value = "";
+        showSubject(subject, subNames[subject]);
+      }
     };
 
-    window.deleteTheory = async (id, subId, subName) => {
-      if(!confirm("Удалить?")) return;
-      await db.from('theory').delete().eq('id', id);
-      showThemes(subId, subName);
-    };
+    showList();
 
-    loadSubjects();
-
+    // Тема
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeIcon.textContent = '☀️'; }
-    themeToggle.onclick = () => {
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
-      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
-    };
+    themeToggle.onclick = () => { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; } };
   </script>
 </body>
 </html>
