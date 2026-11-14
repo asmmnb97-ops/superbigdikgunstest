@@ -2,71 +2,68 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rain Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rain Test — Тренажер</title>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="logo-box">
-      <svg class="medusa-svg-small" viewBox="0 0 100 100">
-        <path class="medusa-head" d="M 20 48 C 20 18, 80 18, 80 48 C 65 54, 35 54, 20 48 Z" />
-        <path class="medusa-tentacle" d="M 32 51 Q 26 68, 34 86" />
-        <path class="medusa-tentacle" d="M 44 53 Q 40 72, 46 92" />
-        <path class="medusa-tentacle" d="M 56 53 Q 60 72, 54 92" />
-        <path class="medusa-tentacle" d="M 68 51 Q 74 68, 66 86" />
-      </svg>
-      <div class="logo-title">Rain<span>Test</span></div>
+  <header>
+    <a href="index.html" class="logo">
+      <div class="logo-icon"></div>
+      <span>Rain Test</span>
+    </a>
+    <div class="controls">
+      <button class="icon-btn" onclick="window.location.href='theory.html'">📖 <span class="btn-label">Теория</span></button>
+      <button class="icon-btn" onclick="window.location.href='tickets.html'">🎫 <span class="btn-label">Билеты</span></button>
+      <button class="icon-btn" onclick="window.location.href='progress.html'">📊 <span class="btn-label">Прогресс</span></button>
+      <button class="icon-btn" onclick="window.location.href='admin.html'">⚙️ <span class="btn-label">Панель</span></button>
+      <button class="icon-btn" id="themeToggle" aria-label="Переключить тему">
+        <span id="themeIcon">🌙</span>
+      </button>
     </div>
-    <nav>
-      <a href="index.html" class="active">Дисциплины</a>
-      <a href="tickets.html">Билеты</a>
-      <a href="progress.html">Прогресс</a>
-      <a href="admin.html">Админка</a>
-    </nav>
-  </aside>
+  </header>
 
-  <div class="main-content">
-    <header>
-      <h1>Выберите дисциплину</h1>
-      <button class="theme-btn" id="theme-btn">🌙</button>
-    </header>
-    <main>
-      <div id="subject-list" class="grid"></div>
-    </main>
-  </div>
-  <button id="scroll-top">↑</button>
+  <main>
+    <div class="grid">
+      <a href="subject.html?id=obshaya" class="card">
+        <span class="card-icon">☾</span>
+        <span>Общая психология</span>
+      </a>
+      <a href="subject.html?id=istoriya" class="card">
+        <span class="card-icon">⚶</span>
+        <span>История психологии</span>
+      </a>
+      <a href="subject.html?id=antropologiya" class="card">
+        <span class="card-icon">🜁</span>
+        <span>Антропология</span>
+      </a>
+      <a href="subject.html?id=anatomiya" class="card">
+        <span class="card-icon">🜃</span>
+        <span>Анатомия</span>
+      </a>
+    </div>
+  </main>
 
   <script>
-    // Дисциплины прописаны прямо здесь (так как data.js мы больше не используем)
-    const subjects = [
-      { id: "obshaya", name: "Общая психология", icon: "☾" },
-      { id: "istoriya", name: "История психологии", icon: "⚶" },
-      { id: "antropologiya", name: "Антропология", icon: "🜁" },
-      { id: "anatomiya", name: "Анатомия", icon: "🜃" }
-    ];
-
-    const list = document.getElementById("subject-list");
-    subjects.forEach(s => {
-      const a = document.createElement("a");
-      a.className = "card";
-      a.href = "subject.html?id=" + s.id;
-      a.innerHTML = `<span class="card-icon">${s.icon}</span><span>${s.name}</span>`;
-      list.appendChild(a);
-    });
-
-    const btn = document.getElementById("theme-btn");
-    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
-    btn.onclick = () => {
-      document.body.classList.toggle("dark");
-      const nowDark = document.body.classList.contains("dark");
-      localStorage.setItem("theme", nowDark ? "dark" : "light");
-      btn.innerHTML = nowDark ? "☀️" : "🌙";
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '☀️';
+    }
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        themeIcon.textContent = '🌙';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        themeIcon.textContent = '☀️';
+      }
     };
-
-    const scrollBtn = document.getElementById("scroll-top");
-    window.onscroll = () => scrollBtn.style.display = document.documentElement.scrollTop > 200 ? "block" : "none";
-    scrollBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
   </script>
 </body>
 </html>

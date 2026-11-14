@@ -2,86 +2,34 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Панель | Rain Test</title>
+  <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Manrope:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="logo-box">
-      <div class="logo-title">Rain<span>Test</span></div>
+  <header>
+    <a href="index.html" class="logo"><div class="logo-icon"></div><span>Rain Test</span></a>
+    <div class="controls"><button class="icon-btn" id="themeToggle"><span id="themeIcon">🌙</span></button></div>
+  </header>
+
+  <main>
+    <div id="login-box" class="quiz-card" style="max-width: 400px; margin: 0 auto;">
+      <h2 style="margin-bottom: 20px;">Вход для админа</h2>
+      <input type="email" id="email" placeholder="Email" style="margin-bottom: 10px;">
+      <input type="password" id="password" placeholder="Пароль" style="margin-bottom: 20px;">
+      <button class="btn-primary" id="login-btn" style="width: 100%;">Войти</button>
+      <p id="auth-msg" style="color: var(--error); margin-top: 10px; text-align: center;"></p>
     </div>
-    <nav>
-      <a href="index.html">Дисциплины</a>
-      <a href="theory.html">Теория</a>
-      <a href="tickets.html">Билеты</a>
-      <a href="progress.html">Прогресс</a>
-      <a href="admin.html" class="active">Панель</a>
-    </nav>
-  </aside>
 
-  <div class="main-content">
-    <header>
-      <h1>Панель управления</h1>
-      <button class="theme-btn" id="theme-btn">🌙</button>
-    </header>
-
-    <main id="admin-content">
-      <div id="login-box" class="question" style="max-width: 400px; margin: 0 auto;">
-        <h2>Вход для админа</h2>
-        <input type="email" id="email" placeholder="Email" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"><br>
-        <input type="password" id="password" placeholder="Пароль" style="width: 100%; margin-bottom: 10px; padding: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"><br>
-        <button class="btn-primary" id="login-btn">Войти</button>
-        <p id="auth-msg" style="color: var(--bad); margin-top: 10px;"></p>
-      </div>
-
-      <div id="panel-box" style="display: none;">
-        <button class="btn-primary" id="logout-btn" style="margin-bottom: 20px;">Выйти</button>
-        <div class="question">
-          <h2>Добавить вопрос</h2>
-          <select id="subject" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            <option value="anatomiya">Анатомия</option>
-            <option value="obshaya">Общая психология</option>
-            <option value="istoriya">История психологии</option>
-            <option value="antropologiya">Антропология</option>
-          </select>
-          <input type="text" id="topic" placeholder="Тема (например, ЦНС)" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-          
-          <select id="q-type" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            <option value="test">Тестовый вопрос</option>
-            <option value="open">Открытый вопрос</option>
-          </select>
-          
-          <textarea id="q-text" placeholder="Текст вопроса" rows="3" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
-          
-          <div id="test-fields">
-            <input type="text" id="opt0" placeholder="Вариант А" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            <input type="text" id="opt1" placeholder="Вариант Б" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            <input type="text" id="opt2" placeholder="Вариант В" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            <input type="text" id="opt3" placeholder="Вариант Г" style="width: 100%; padding: 10px; margin-bottom: 5px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-            
-            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Правильный ответ:</label>
-            <select id="correct" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);">
-              <option value="0">Вариант А</option>
-              <option value="1">Вариант Б</option>
-              <option value="2">Вариант В</option>
-              <option value="3">Вариант Г</option>
-            </select>
-
-            <textarea id="explain" placeholder="Пояснение к ответу" rows="2" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
-          </div>
-
-          <div id="open-fields" style="display: none;">
-            <textarea id="model-answer" placeholder="Эталонный ответ" rows="3" style="width: 100%; padding: 10px; margin-bottom: 10px; background: var(--bg); color: var(--text); border: 1px solid var(--border);"></textarea>
-          </div>
-
-          <button class="btn-primary" id="save-btn">Сохранить в базу</button>
-          <p id="save-msg" style="color: var(--ok); margin-top: 10px;"></p>
-        </div>
-      </div>
-    </main>
-  </div>
+    <div id="panel-box" style="display: none; text-align: center;">
+      <h2 style="margin-bottom: 20px;">Вы вошли как Админ</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 20px;">Теперь вы можете добавлять и редактировать вопросы прямо на страницах дисциплин.</p>
+      <button class="btn-primary" onclick="window.location.href='index.html'">Перейти к дисциплинам</button>
+      <button class="btn-secondary" id="logout-btn" style="margin-left: 10px;">Выйти</button>
+    </div>
+  </main>
 
   <script>
     const SUPABASE_URL = 'https://vgyhmydzbshdjlmbdsbq.supabase.co';
@@ -89,88 +37,31 @@
     const { createClient } = supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const loginBox = document.getElementById("login-box");
-    const panelBox = document.getElementById("panel-box");
-    const authMsg = document.getElementById("auth-msg");
-
     db.auth.getSession().then(({ data: { session } }) => {
-      if (session) showPanel();
+      if (session) { document.getElementById("login-box").style.display = "none"; document.getElementById("panel-box").style.display = "block"; }
     });
 
     document.getElementById("login-btn").onclick = async () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
-      const { data, error } = await db.auth.signInWithPassword({ email, password });
-      if (error) { authMsg.textContent = "Ошибка: " + error.message; }
-      else { authMsg.textContent = ""; showPanel(); }
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) document.getElementById("auth-msg").textContent = "Ошибка: " + error.message;
+      else { document.getElementById("login-box").style.display = "none"; document.getElementById("panel-box").style.display = "block"; }
     };
 
     document.getElementById("logout-btn").onclick = async () => {
       await db.auth.signOut();
-      loginBox.style.display = "block";
-      panelBox.style.display = "none";
+      document.getElementById("login-box").style.display = "block";
+      document.getElementById("panel-box").style.display = "none";
     };
 
-    function showPanel() {
-      loginBox.style.display = "none";
-      panelBox.style.display = "block";
-    }
-
-    document.getElementById("q-type").onchange = (e) => {
-      if (e.target.value === "test") {
-        document.getElementById("test-fields").style.display = "block";
-        document.getElementById("open-fields").style.display = "none";
-      } else {
-        document.getElementById("test-fields").style.display = "none";
-        document.getElementById("open-fields").style.display = "block";
-      }
-    };
-
-    document.getElementById("save-btn").onclick = async () => {
-      const type = document.getElementById("q-type").value;
-      const subject = document.getElementById("subject").value;
-      const topic = document.getElementById("topic").value;
-      const qText = document.getElementById("q-text").value;
-      
-      let payload = { subject, topic, question_type: type, question_text: qText };
-
-      if (type === "test") {
-        payload.options = [
-          document.getElementById("opt0").value,
-          document.getElementById("opt1").value,
-          document.getElementById("opt2").value,
-          document.getElementById("opt3").value
-        ];
-        payload.correct_answer = parseInt(document.getElementById("correct").value);
-        payload.explanation = document.getElementById("explain").value;
-      } else {
-        payload.model_answer = document.getElementById("model-answer").value;
-      }
-
-      const { error } = await db.from('questions').insert([payload]);
-      
-      if (error) {
-        document.getElementById("save-msg").style.color = "var(--bad)";
-        document.getElementById("save-msg").textContent = "Ошибка: " + error.message;
-      } else {
-        document.getElementById("save-msg").style.color = "var(--ok)";
-        document.getElementById("save-msg").textContent = "Вопрос добавлен!";
-        document.getElementById("q-text").value = "";
-        document.getElementById("opt0").value = "";
-        document.getElementById("opt1").value = "";
-        document.getElementById("opt2").value = "";
-        document.getElementById("opt3").value = "";
-        document.getElementById("explain").value = "";
-        document.getElementById("model-answer").value = "";
-      }
-    };
-
-    const btn = document.getElementById("theme-btn");
-    if (localStorage.getItem("theme") === "dark") { document.body.classList.add("dark"); btn.innerHTML = "☀️"; }
-    btn.onclick = () => {
-      document.body.classList.toggle("dark");
-      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
-      btn.innerHTML = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeIcon.textContent = '☀️'; }
+    themeToggle.onclick = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeIcon.textContent = '🌙'; } 
+      else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeIcon.textContent = '☀️'; }
     };
   </script>
 </body>
